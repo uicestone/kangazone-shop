@@ -6,8 +6,7 @@
     "start": "ts-node -T --project ./tsconfig-server.json server.ts",
     "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "postinstall": "npm run build"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@types/express": "^4.17.1",
