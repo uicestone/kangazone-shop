@@ -21,6 +21,9 @@
     "lodash": "^4.17.15",
     "normalize.css": "^8.0.0",
     "postcss-pxtorem": "^4.0.1",
+    "pug": "^2.0.4",
+    "pug-loader": "^2.4.0",
+    "pug-plain-loader": "^1.0.0",
     "reset.css": "^2.0.2",
     "sass": "^1.17.4",
     "sass-loader": "^7.1.0",
@@ -40,11 +43,7 @@
     "vuex": "^3.0.1",
     "vuex-pathify": "^1.2.4"
   },
-  "devDependencies": {
-    "pug": "^2.0.4",
-    "pug-loader": "^2.4.0",
-    "pug-plain-loader": "^1.0.0"
-  },
+  "devDependencies": {},
   "browserslist": [
     "> 1%",
     "last 2 versions"
