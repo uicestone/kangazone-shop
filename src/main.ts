@@ -4,18 +4,15 @@ import router from "./router";
 import store from "./store";
 import "reset.css";
 import "normalize.css";
-// import "./assets/tailwind.css";
-import "tailwindcss/dist/tailwind.css";
+import "./assets/tailwind.css";
+import vuetify from "./plugins/vuetify";
 
-// import mandMobile from "mand-mobile";
-const mandMobile = require("mand-mobile");
-import "mand-mobile/lib/mand-mobile.css";
-
-Vue.use(mandMobile);
 Vue.config.productionTip = false;
 
 new Vue({
   router,
   store,
+  //@ts-ignore
+  vuetify,
   render: h => h(App)
 }).$mount("#app");
