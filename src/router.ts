@@ -2,6 +2,9 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
 import Login from "./views/Login.vue";
+import OrderList from "./views/order/List.vue";
+import OrderIndex from "./views/order/index.vue";
+
 import get from "lodash/get";
 import store from "./store";
 
@@ -18,6 +21,21 @@ const router = new Router({
       meta: {
         requireAuth: true
       }
+    },
+    {
+      path: "/order",
+      name: "order",
+      component: OrderIndex,
+      meta: {
+        requireAuth: true
+      },
+      children: [
+        {
+          path: "list/:type",
+          name: "orderList",
+          component: OrderList
+        }
+      ]
     },
     {
       path: "/login",
