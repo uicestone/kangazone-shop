@@ -5,6 +5,7 @@ import store from "./store";
 import "reset.css";
 import "normalize.css";
 import "./assets/tailwind.css";
+
 import vuetify from "./plugins/vuetify";
 import Notifications from "vue-notification";
 
