@@ -760,6 +760,13 @@
     "@types/connect" "*"
     "@types/node" "*"
 
+"@types/compression@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npm.taobao.org/@types/compression/download/@types/compression-1.0.1.tgz#f3682a6b3ce2dbd4aece48547153ebc592281fa7"
+  integrity sha1-82gqazzi29SuzkhUcVPrxZIoH6c=
+  dependencies:
+    "@types/express" "*"
+
 "@types/connect@*":
   version "3.4.32"
   resolved "https://registry.npm.taobao.org/@types/connect/download/@types/connect-3.4.32.tgz#aa0e9616b9435ccad02bc52b5b454ffc2c70ba28"
@@ -780,7 +787,7 @@
     "@types/node" "*"
     "@types/range-parser" "*"
 
-"@types/express@^4.17.1":
+"@types/express@*", "@types/express@^4.17.1":
   version "4.17.1"
   resolved "https://registry.npm.taobao.org/@types/express/download/@types/express-4.17.1.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fexpress%2Fdownload%2F%40types%2Fexpress-4.17.1.tgz#4cf7849ae3b47125a567dfee18bfca4254b88c5c"
   integrity sha1-TPeEmuO0cSWlZ9/uGL/KQlS4jFw=
