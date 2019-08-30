@@ -5,7 +5,8 @@
         v-icon mdi-chevron-left
       v-toolbar-title 订单列表
     v-container
-      v-data-table.pt-20(:headers="headers" :items="items" :items-per-page="20" hide-default-footer)
+      div.pt-20
+        v-data-table.pt-10(:headers="headers" :items="items" :items-per-page="20" hide-default-footer)
 </template>
 
 <script>

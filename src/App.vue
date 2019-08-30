@@ -1,7 +1,14 @@
 <template lang="pug">
   v-app#app
+    notifications(group="api" position="top center")
     router-view
 </template>
+
+<script>
+export default {
+  mounted() {}
+};
+</script>
 
 <style scoped>
 #app {

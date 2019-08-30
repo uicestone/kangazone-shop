@@ -2,8 +2,9 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
 import Login from "./views/Login.vue";
-import OrderList from "./views/order/List.vue";
-import OrderIndex from "./views/order/index.vue";
+import bookingList from "./views/booking/List.vue";
+import bookingIndex from "./views/booking/index.vue";
+import bookingCreate from "./views/booking/Create.vue";
 
 import get from "lodash/get";
 import store from "./store";
@@ -23,17 +24,22 @@ const router = new Router({
       }
     },
     {
-      path: "/order",
-      name: "order",
-      component: OrderIndex,
+      path: "/booking",
+      name: "bookingIndex",
+      component: bookingIndex,
       meta: {
         requireAuth: true
       },
       children: [
         {
           path: "list/:type",
-          name: "orderList",
-          component: OrderList
+          name: "bookingList",
+          component: bookingList
+        },
+        {
+          path: "create",
+          name: "bookingCreate",
+          component: bookingCreate
         }
       ]
     },

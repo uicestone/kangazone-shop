@@ -10,6 +10,7 @@
 
 <script>
 import { sync } from "vuex-pathify";
+import { login } from "../services/auth";
 export default {
   data() {
     return {
@@ -24,8 +25,10 @@ export default {
     token: sync("auth/token")
   },
   methods: {
-    login() {
-      const token = "test";
+    async login() {
+      const { username, password } = this.form;
+      const res = await login({ username, password });
+      const { token, user } = res.data;
       localStorage.setItem("token", token);
       this.token = token;
       this.$router.replace("/");
