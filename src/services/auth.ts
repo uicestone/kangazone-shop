@@ -11,3 +11,10 @@ export const login = ({ username, password }: { username: string; password: stri
     url: "/api/auth/login",
     data: { login: username, password }
   });
+
+export const signup = ({ username, gender, mobile }) =>
+  axios.request({
+    method: "POST",
+    url: "/api/user",
+    data: { name: username, gender, mobile }
+  });
