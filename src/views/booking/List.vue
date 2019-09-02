@@ -5,19 +5,30 @@
         v-icon mdi-chevron-left
       v-toolbar-title 订单列表
     v-container
-      div.pt-20
-        v-data-table.pt-10(:headers="headers" :items="items" :items-per-page="20" hide-default-footer)
+      v-card.p-5
+        v-form
+          div(class="flex flex-col lg:flex-row")
+            v-select(label="类型" v-model="searchForm.type" :items="configs.bookingTypes" item-text="label" item-value="value" clearable)
+            v-select(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
+            v-text-field(label="手机号" v-model="searchForm.mobile" clearable)
+          div
+            v-btn(@click="getBookings") 搜索
+        
+
+      div.pt-10
+        v-data-table.pt-10(:headers="headers" :items="items" :items-per-page="20" hide-default-footer :loading="loading")
           template(v-slot:item.action="{item}")
             a(small @click="editBooking(item)") 编辑
+        v-pagination(v-model="page" :length="total" total-visible="7")
     v-dialog(v-model="showEditBooking")
       v-card
         v-card-title 订单详情
         v-list-item
           v-list-item-content 昵称
-          v-list-item-action {{editBookingItem.name}}
+          v-list-item-action {{editBookingItem.customer.name}}
         v-list-item
           v-list-item-content 手机号
-          v-list-item-action {{editBookingItem.mobile}}
+          v-list-item-action {{editBookingItem.customer.mobile}}
         v-list-item
           v-list-item-content 日期
           v-list-item-action {{editBookingItem.date}}
@@ -43,24 +54,32 @@
 
 <script>
 import get from "lodash/get";
+import { findBookings } from "../../services/booking";
+import { sync } from "vuex-pathify";
 
 export default {
   data() {
     return {
-      editBookingItem: {},
+      searchForm: {
+        mobile: "",
+        status: null,
+        type: null
+      },
+      editBookingItem: {
+        customer: {}
+      },
       showEditBooking: false,
-
       headers: [
         {
           text: "昵称",
           align: "left",
-          value: "name",
+          value: "customer.name",
           sortable: false
         },
         {
           text: "手机号",
           align: "left",
-          value: "mobile"
+          value: "customer.mobile"
         },
         {
           text: "状态",
@@ -91,21 +110,43 @@ export default {
         },
         { text: "Actions", value: "action", sortable: false }
       ],
-      items: [
-        {
-          id: "123",
-          name: "test",
-          mobile: "13122389130",
-          status: "pending",
-          hours: 10,
-          type: "test",
-          socksCount: 5,
-          membersCount: 5
-        }
-      ]
+      items: [],
+      loading: true,
+      page: 1,
+      total: 10,
+      limit: 10
     };
   },
+  computed: {
+    configs: sync("configs")
+  },
+  mounted() {
+    this.getBookings();
+  },
+  watch: {
+    page(val) {
+      this.getBookings();
+    }
+  },
   methods: {
+    async getBookings() {
+      this.loading = true;
+
+      const {
+        limit,
+        page,
+        searchForm: { status, type }
+      } = this;
+      const res = await findBookings({ limit, skip: (page - 1) * limit, type, status });
+      const end = res.headers["items-end"];
+      const start = res.headers["items-start"];
+      const total = res.headers["items-total"];
+
+      this.total = Math.round(total / limit);
+
+      this.items = res.data;
+      this.loading = false;
+    },
     editBooking(item) {
       this.editBookingItem = item;
       this.showEditBooking = true;

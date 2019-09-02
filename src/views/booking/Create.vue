@@ -35,7 +35,7 @@
               v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 创建预约
           v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 2")
             v-text-field(label="手机号" v-model="createBookingForm.mobile" required disabled)
-            v-select(label="类型" v-model="createBookingForm.type" :items="bookingTypes" item-text="label" item-value="value")
+            v-select(label="类型" v-model="createBookingForm.type" :items="configs.bookingTypes" item-text="label" item-value="value")
             v-menu
               template(v-slot:activator="{on}")
                 v-text-field(label="选择日期" v-on="on"  v-model="createBookingForm.date")
@@ -54,6 +54,7 @@
 import moment from "moment";
 import { signup } from "../../services";
 import { findUser } from "../../services/user";
+import { sync } from "vuex-pathify";
 
 export default {
   data() {
@@ -80,11 +81,11 @@ export default {
         membersCount: 1,
         socksCount: 1,
         loading: false
-      },
-      bookingTypes: [{ value: "play", label: "计时" }, { value: "party", label: "派对" }, { value: "group", label: "团建" }]
+      }
     };
   },
   computed: {
+    configs: sync("configs"),
     userValid() {
       return this.searchUserForm.mobile;
     }
