@@ -6,8 +6,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "dev": "vue-cli-service serve",
-    "start": "ts-node -T --project ./tsconfig-server.json server.ts",
-    "postinstall": "npm run build"
+    "start": "ts-node -T --project ./tsconfig-server.json server.ts"
   },
   "dependencies": {
     "@types/axios": "^0.14.0",
