@@ -24,7 +24,7 @@
             div.flex.justify-center
               v-btn(color="blue-grey" dark v-if="!userValid" @click="goCreateUser") 创建用户
               v-btn(color="primary"  v-if="userValid" @click="createBookingFromSearchUser") 创建预约
-              v-btn.ml-4(color="success" v-if="userValid" @click="createBookingFromSearchUser") 签到
+              v-btn.ml-4(color="success" v-if="userValid" @click="goChecIn") 签到
           v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 1")
             v-text-field(label="手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable)
             v-text-field(label="用户名" v-model="createUserForm.username" required :rules="[v => !!v || '请输入用户名']" clearable)
@@ -45,6 +45,8 @@
             v-text-field(label="袜子数" v-model="createBookingForm.socksCount" required :rules="[v => !!v || '请输入袜子数']")
             div
               v-btn(color="primary" :disabled="!createBookingForm.valid" :loading="createBookingForm.loading" @click="handleBooking") 收款
+          v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 3")
+            v-text-field(label="手环号" v-model="createBookingForm.bandCode" required disabled)
           
 
 
@@ -81,6 +83,9 @@ export default {
         membersCount: 1,
         socksCount: 1,
         loading: false
+      },
+      checkInForm: {
+        bandCode: ""
       }
     };
   },
@@ -93,7 +98,6 @@ export default {
   watch: {
     async "searchUserForm.searchText"(val) {
       const { searchText, loading } = this.searchUserForm;
-      console.log(searchText);
       if (loading || !searchText) return;
       this.searchUserForm.loading = true;
       const res = await findUser({ keyword: searchText });
@@ -115,6 +119,9 @@ export default {
       const res = await signup({ username, gender, mobile });
       this.createBookingForm.mobile = this.createUserForm.mobile;
       this.step = 2;
+    },
+    goChecIn() {
+      this.step = 3;
     },
     handleBooking() {
       this.createBookingForm.loading = true;

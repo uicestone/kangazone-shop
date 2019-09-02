@@ -7,7 +7,7 @@
     v-container
       v-card.p-5
         v-form
-          div(class="flex flex-col lg:flex-row")
+          div(class="flex flex-col md:flex-row")
             v-select(label="类型" v-model="searchForm.type" :items="configs.bookingTypes" item-text="label" item-value="value" clearable)
             v-select(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
             v-text-field(label="手机号" v-model="searchForm.mobile" clearable)
