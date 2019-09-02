@@ -5,6 +5,7 @@ import Login from "./views/Login.vue";
 import bookingList from "./views/booking/List.vue";
 import bookingIndex from "./views/booking/index.vue";
 import bookingCreate from "./views/booking/Create.vue";
+import Test from "./views/test/Test.vue";
 
 import get from "lodash/get";
 import store from "./store";
@@ -42,6 +43,11 @@ const router = new Router({
           component: bookingCreate
         }
       ]
+    },
+    {
+      path: "/test",
+      name: "test",
+      component: Test
     },
     {
       path: "/login",
