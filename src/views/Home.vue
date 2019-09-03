@@ -33,6 +33,7 @@
 
 <script>
 import { sync } from "vuex-pathify";
+import { logout } from "../services/auth";
 // @ is an alias to /src
 export default {
   name: "home",
@@ -59,9 +60,7 @@ export default {
       });
     },
     logout() {
-      this.token = "";
-      localStorage.removeItem("token");
-      window.location = "/";
+      logout();
     }
   }
 };

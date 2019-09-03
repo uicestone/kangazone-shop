@@ -14,17 +14,29 @@
             v-autocomplete(
               label="手机号" 
               clearable
-              v-model="searchUserForm.mobile" 
+              autofocus
+              hide-no-data
+              v-model="searchUserForm.user" 
               :search-input.sync="searchUserForm.searchText"
               :loading="searchUserForm.loading"
               :items="searchUserForm.items"
               item-text="mobile"
-              item-value="mobile"
+              :item-value="item => item"
               required)
-            div.flex.justify-center
+            div.flex.justify-center.align-center
               v-btn(color="blue-grey" dark v-if="!userValid" @click="goCreateUser") 创建用户
               v-btn(color="primary"  v-if="userValid" @click="createBookingFromSearchUser") 创建预约
-              v-btn.ml-4(color="success" v-if="userValid" @click="goChecIn") 签到
+              v-overflow-btn.ml-4.w-64(
+                :loading="searchUserForm.bookings_loading" 
+                :items="searchUserForm.bookings" 
+                label="签到" 
+                dense
+                color="success"
+                v-if="userValid"
+                :item-text="getDropDownText"
+                item-value="id"
+                @change="goChecIn"
+                ) 
           v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 1")
             v-text-field(label="手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable)
             v-text-field(label="用户名" v-model="createUserForm.username" required :rules="[v => !!v || '请输入用户名']" clearable)
@@ -53,17 +65,25 @@
 </template>
 
 <script>
-import moment from "moment";
-import { signup } from "../../services";
+import { signup, User } from "../../services";
 import { findUser } from "../../services/user";
 import { sync } from "vuex-pathify";
+import { findBookings } from "../../services/booking";
+import { moment } from "../../utils/moment";
+import { config } from "../../../config";
 
 export default {
   data() {
     return {
+      today: moment().format("YYYY-MM-DD"),
       step: 0,
       searchUserForm: {
-        mobile: "",
+        user: {
+          id: "",
+          mobile: ""
+        },
+        bookings: null,
+        bookings_loading: false,
         searchText: "",
         loading: false,
         items: []
@@ -85,6 +105,7 @@ export default {
         loading: false
       },
       checkInForm: {
+        bookingId: "",
         bandCode: ""
       }
     };
@@ -92,7 +113,8 @@ export default {
   computed: {
     configs: sync("configs"),
     userValid() {
-      return this.searchUserForm.mobile;
+      if (!this.searchUserForm.user) return false;
+      return this.searchUserForm.user.mobile;
     }
   },
   watch: {
@@ -103,6 +125,20 @@ export default {
       const res = await findUser({ keyword: searchText });
       this.searchUserForm.items = res.data;
       this.searchUserForm.loading = false;
+    },
+    async "searchUserForm.user"(val) {
+      const { bookings_loading } = this.searchUserForm;
+      if (bookings_loading || !val) return;
+      this.searchUserForm.bookings_loading = true;
+      //TODO: store id
+      let res;
+      if (config.IS_PROD) {
+        res = await findBookings({ customer: val.id, date: this.today });
+      } else {
+        res = await findBookings({ customer: val.id });
+      }
+      this.searchUserForm.bookings = res.data;
+      this.searchUserForm.bookings_loading = false;
     }
   },
   methods: {
@@ -111,7 +147,7 @@ export default {
       this.step = 1;
     },
     async createBookingFromSearchUser() {
-      this.createBookingForm.mobile = this.searchUserForm.mobile;
+      this.createBookingForm.mobile = this.searchUserForm.user.mobile;
       this.step = 2;
     },
     async createBookingFromCreaetUser() {
@@ -120,11 +156,15 @@ export default {
       this.createBookingForm.mobile = this.createUserForm.mobile;
       this.step = 2;
     },
-    goChecIn() {
+    goChecIn(bookingId) {
+      this.checkInForm.bookingId = bookingId;
       this.step = 3;
     },
     handleBooking() {
       this.createBookingForm.loading = true;
+    },
+    getDropDownText(i) {
+      return `${i.checkInAt}-${i.hours}小时-${i.membersCount}人`;
     }
   }
 };

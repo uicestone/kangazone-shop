@@ -2,15 +2,16 @@ import { axios } from "../utils/axios";
 import { _ } from "../utils/lodash";
 
 export type BookingType = "play" | "party";
-export enum BookingStatus {
-  PENDING
-}
+export type BookingStatus = "PENDING" | "BOOKED" | "IN_SERVICE" | "FINISHED" | "CANCELED";
 
 export type BookingFindArgs = QueryArgs & {
-  type: BookingType;
-  date: string;
-  status: string;
-  due: boolean;
+  type?: BookingType;
+  date?: string;
+  status?: BookingStatus;
+  due?: boolean;
+  keyword?: string;
+  customer?: string;
+  store?: string;
 };
 
 export interface QueryArgs {

@@ -22,7 +22,8 @@ export default {
     };
   },
   computed: {
-    token: sync("auth/token")
+    token: sync("auth/token"),
+    user: sync("auth/user")
   },
   methods: {
     async login() {
@@ -31,6 +32,7 @@ export default {
       const { token, user } = res.data;
       localStorage.setItem("token", token);
       this.token = token;
+      this.user = user;
       this.$router.replace("/");
     }
   }

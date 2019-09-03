@@ -5,8 +5,19 @@
 </template>
 
 <script>
+import { sync } from "vuex-pathify";
+import { getAuthUser, logout } from "./services";
 export default {
-  mounted() {}
+  async created() {
+    if (this.token) {
+      const res = await getAuthUser();
+      this.user = res.data;
+    }
+  },
+  computed: {
+    user: sync("auth/user"),
+    token: sync("auth/token")
+  }
 };
 </script>
 

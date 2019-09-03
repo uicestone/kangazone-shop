@@ -18,3 +18,13 @@ export const signup = ({ username, gender, mobile }) =>
     url: "/api/user",
     data: { name: username, gender, mobile }
   });
+
+export const getAuthUser = () =>
+  axios.request<User>({
+    url: "/api/auth/user"
+  });
+
+export const logout = () => {
+  localStorage.removeItem("token");
+  window.location.href = "/";
+};

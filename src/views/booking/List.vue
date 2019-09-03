@@ -16,7 +16,12 @@
         
 
       div.pt-10
-        v-data-table.pt-10(:headers="headers" :items="items" :items-per-page="20" hide-default-footer :loading="loading")
+        v-data-table.pt-10(
+          :headers="headers" 
+          :items="items" 
+          :items-per-page="20" 
+          hide-default-footer 
+          :loading="loading")
           template(v-slot:item.action="{item}")
             a(small @click="editBooking(item)") 编辑
         v-pagination(v-model="page" :length="total" total-visible="7")
@@ -135,9 +140,10 @@ export default {
       const {
         limit,
         page,
-        searchForm: { status, type }
+        searchForm: { status, type, mobile }
       } = this;
-      const res = await findBookings({ limit, skip: (page - 1) * limit, type, status });
+      const skip = (page - 1) * limit;
+      const res = await findBookings({ limit, skip: skip > 0 ? skip : 0, type, status, keyword: mobile });
       const end = res.headers["items-end"];
       const start = res.headers["items-start"];
       const total = res.headers["items-total"];
