@@ -9,7 +9,7 @@
         v-text-field(label="交易金额" v-model="form.amount" clearable)
         v-text-field(label="Saas软件订单号" v-model="form.orderId" clearable)
         v-text-field(label="Saas系统业务订单号" v-model="form.businessId" clearable)
-        v-text-field(v-if="type=='refund'" label="原收银台流水号" v-model="form.businessId" clearable)
+        v-text-field(v-if="type=='refund'" label="原收银台流水号" v-model="form.oriMisId" clearable)
         v-text-field(v-if="type=='refund'" label="原Saas软件订单号" v-model="form.oriOrderId" clearable)
         v-text-field(v-if="type=='refund'"  label="原商户订单号" v-model="form.oriPlatformId" clearable)
 
