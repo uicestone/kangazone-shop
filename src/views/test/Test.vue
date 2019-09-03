@@ -26,13 +26,13 @@ export default {
   data() {
     return {
       form: {
-        appType: "test",
+        appType: "01",
         appId: "com.kangazone.shop",
         transType: "00",
-        amount: "1000",
+        amount: "1",
         orderId: "1234",
         orderInfo: "1234",
-        payCode: "1234",
+        payCode: "",
         config: {
           processDisplay: true,
           resultDisplay: true,
@@ -56,7 +56,7 @@ export default {
     },
     debug() {
       const { form } = this;
-      $App.jsCallAndroid(form);
+      $App.jsCallAndroid(JSON.stringify(form));
     }
   }
 };
