@@ -1,4 +1,3 @@
-import { _ } from '../../utils/lodash';
 <template lang="pug">
   v-container
     v-card.p-10
@@ -28,6 +27,8 @@ import { _ } from '../../utils/lodash';
 </template>
 
 <script>
+import { _ } from "../../utils/lodash";
+
 export default {
   name: "Test",
   data() {
@@ -40,18 +41,18 @@ export default {
         transType: "00",
         amount: "1",
         orderId: "1234",
-        businessId: "12345",
+        businessId: "1234",
         orderInfo: "1234",
-        oriMisId: "1234",
-        oriOrderId: "1234",
-        oriPlatformId: "1234",
-        payCode: "",
+        oriMisId: null,
+        oriOrderId: null,
+        oriPlatformId: null,
+        payCode: null,
         config: {
           processDisplay: true,
           resultDisplay: true,
           printTicket: true,
-          printIdType: "",
-          remarks: ""
+          printIdType: null,
+          remarks: null
         }
       },
       msg: "哈哈"
@@ -78,7 +79,7 @@ export default {
     debug() {
       let { form } = this;
       form = _.omitBy(form, _.isNil);
-      form.config = _._.omitBy(form.config, _.isNil);
+      form.config = _.omitBy(form.config, _.isNil);
       $App.jsCallAndroid(JSON.stringify(form));
     }
   }
