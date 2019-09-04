@@ -23,3 +23,21 @@ export const findBookings = (args: BookingFindArgs) => {
   const params = _.omitBy(args, _.isNil);
   return axios.request({ url: "/api/booking", params });
 };
+
+export const createBooking = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway }) => {
+  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code }, _.isNil);
+  return axios.request({
+    url: `/api/booking`,
+    params: {
+      useCredit,
+      paymentGateway
+    },
+    method: "POST",
+    data
+  });
+};
+
+export const updateBooking = ({ id, bandIds, status }) => {
+  const data = _.omitBy({ bandIds, status }, _.isNil);
+  return axios.request({ method: "PUT", url: `/api/booking/${id}`, data });
+};

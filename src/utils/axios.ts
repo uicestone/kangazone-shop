@@ -3,6 +3,7 @@ import { config } from "../../config";
 import get from "lodash/get";
 import store from "@/store";
 import Vue from "vue";
+import { logout } from "../services/auth";
 
 export const axios = Axios.create({
   baseURL: config.VUE_APP_API_ENDPOINT
@@ -23,6 +24,13 @@ axios.interceptors.response.use(
   },
   err => {
     const message = get(err, "response.data.message");
+    const statusCode = get(err, "response.status");
+
+    if (statusCode) {
+      if (statusCode == 401) {
+        logout();
+      }
+    }
     if (message) {
       Vue.notify({
         group: "api",

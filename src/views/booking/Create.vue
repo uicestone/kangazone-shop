@@ -6,11 +6,11 @@
       v-toolbar-title 创建订单
     v-container.flex.justify-center.items-center.h-screen
       v-card
-        v-toolbar(flat color="grey lighten-4" dense v-if="step !== 0")
-          v-btn(icon @click="step = 0")
+        v-toolbar(flat color="grey lighten-4" dense v-if="step !== 'searchUser'")
+          v-btn(icon @click="step = 'searchUser'")
             v-icon mdi-arrow-left
         div.p-10
-          v-form(ref="searchUserForm" v-if="step == 0")
+          v-form(ref="searchUserForm" v-if="step == 'searchUser'")
             v-autocomplete(
               label="手机号" 
               clearable
@@ -34,10 +34,10 @@
                 color="success"
                 v-if="userValid"
                 :item-text="getDropDownText"
-                item-value="id"
-                @change="goChecIn"
+                :item-value="i => i"
+                @change="goCheckIn"
                 ) 
-          v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 1")
+          v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'")
             v-text-field(label="手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable)
             v-text-field(label="用户名" v-model="createUserForm.username" required :rules="[v => !!v || '请输入用户名']" clearable)
             v-radio-group(row v-model="createUserForm.gender" required)
@@ -45,9 +45,8 @@
               v-radio(label="女" value="2")
             div
               v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 创建预约
-          v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 2")
-            v-text-field(label="手机号" v-model="createBookingForm.mobile" required disabled)
-            v-select(label="类型" v-model="createBookingForm.type" :items="configs.bookingTypes" item-text="label" item-value="value")
+          v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'")
+            v-text-field(label="手机号" v-model="createBookingForm.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
             v-menu
               template(v-slot:activator="{on}")
                 v-text-field(label="选择日期" v-on="on"  v-model="createBookingForm.date")
@@ -55,12 +54,16 @@
             v-text-field(label="人数" v-model="createBookingForm.membersCount" required :rules="[v => !!v || '请输入人数']")
             v-text-field(label="时长" v-model="createBookingForm.hours" required :rules="[v => !!v || '请输入时长']")
             v-text-field(label="袜子数" v-model="createBookingForm.socksCount" required :rules="[v => !!v || '请输入袜子数']")
-            div
-              v-btn(color="primary" :disabled="!createBookingForm.valid" :loading="createBookingForm.loading" @click="handleBooking") 收款
-          v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 3")
-            v-text-field(label="手环号" v-model="createBookingForm.bandCode" required disabled)
-          
-
+            v-bottom-navigation(v-model="createBookingForm.paymentGateway" grow icons-and-text)
+                v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value")
+                  span {{item.label}}
+                  v-icon {{item.icon}}
+            div.flex.mt-5.justify-center
+              v-btn(color="primary" :disabled="!createBookingForm.valid"  @click="createBooking") 创建订单
+              v-btn.ml-4(color="success" :disabled="!createBookingForm.valid"   @click="handleBooking") 确认订单
+          v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'")
+            v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="'手环号'+index" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请输入手环号']")
+            v-btn(:disabled="!checkInForm.valid" @click="handleCheckIn") 签到
 
 </template>
 
@@ -68,7 +71,7 @@
 import { signup, User } from "../../services";
 import { findUser } from "../../services/user";
 import { sync } from "vuex-pathify";
-import { findBookings } from "../../services/booking";
+import { findBookings, createBooking, updateBooking } from "../../services/booking";
 import { moment } from "../../utils/moment";
 import { config } from "../../../config";
 
@@ -76,7 +79,7 @@ export default {
   data() {
     return {
       today: moment().format("YYYY-MM-DD"),
-      step: 0,
+      step: "createBooking",
       searchUserForm: {
         user: {
           id: "",
@@ -99,19 +102,26 @@ export default {
         type: "play",
         date: moment().format("YYYY-MM-DD"),
         hours: 1,
-        mobile: "",
+        mobile: "13122381930",
         membersCount: 1,
         socksCount: 1,
-        loading: false
+        paymentGateway: 0,
+        paymentGateways: [{ label: "扫码支付", value: "scan", icon: "mdi-qrcode" }, { label: "现金支付", value: "cash", icon: "mdi-cash" }, { label: "刷卡支付", value: "card", icon: "mdi-card" }]
       },
       checkInForm: {
-        bookingId: "",
-        bandCode: ""
+        booking: {
+          membersCount: 1
+        },
+        bandIds: []
       }
     };
   },
   computed: {
+    paymentGateway() {
+      return this.createBookingForm.paymentGateways[this.createBookingForm.paymentGateway].value;
+    },
     configs: sync("configs"),
+    currentStore: sync("store/currentStore"),
     userValid() {
       if (!this.searchUserForm.user) return false;
       return this.searchUserForm.user.mobile;
@@ -133,7 +143,7 @@ export default {
       //TODO: store id
       let res;
       if (config.IS_PROD) {
-        res = await findBookings({ customer: val.id, date: this.today });
+        res = await findBookings({ customer: val.id, date: this.today, store: this.currentStore.id });
       } else {
         res = await findBookings({ customer: val.id });
       }
@@ -144,25 +154,46 @@ export default {
   methods: {
     goCreateUser() {
       Object.assign(this.createUserForm, { mobile: "", username: "", gender: "male" });
-      this.step = 1;
+      this.step = "createUser";
     },
     async createBookingFromSearchUser() {
       this.createBookingForm.mobile = this.searchUserForm.user.mobile;
-      this.step = 2;
+      this.step = "createBooking";
     },
     async createBookingFromCreaetUser() {
       const { mobile, username, gender } = this.createUserForm;
       const res = await signup({ username, gender, mobile });
       this.createBookingForm.mobile = this.createUserForm.mobile;
-      this.step = 2;
+      this.step = "createBooking";
     },
-    goChecIn(bookingId) {
-      this.checkInForm.bookingId = bookingId;
-      this.step = 3;
+    goCheckIn(booking) {
+      this.checkInForm.booking = booking;
+      this.step = "checkIn";
     },
-    handleBooking() {
-      this.createBookingForm.loading = true;
+    async createBooking() {
+      let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm;
+      const { paymentGateway } = this;
+      const res = await createBooking({
+        store: this.currentStore.id,
+        type,
+        date,
+        hours,
+        checkInAt: moment().format("HH:mm"),
+        membersCount,
+        socksCount,
+        useCredit: paymentGateway == "cash",
+        paymentGateway
+      });
+      this.goCheckIn(res.data);
     },
+    async handleCheckIn() {
+      const {
+        booking: { id },
+        bandIds
+      } = this.checkInForm;
+      const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
+    },
+    async handleBooking() {},
     getDropDownText(i) {
       return `${i.checkInAt}-${i.hours}小时-${i.membersCount}人`;
     }

@@ -7,16 +7,34 @@
 <script>
 import { sync } from "vuex-pathify";
 import { getAuthUser, logout } from "./services";
+import { findStores, getConfigs } from "./services/store";
 export default {
-  async created() {
-    if (this.token) {
-      const res = await getAuthUser();
-      this.user = res.data;
-    }
+  created() {
+    this.getAuthUser();
+    this.getStore();
+    this.getConfig();
   },
   computed: {
     user: sync("auth/user"),
-    token: sync("auth/token")
+    token: sync("auth/token"),
+    currentStore: sync("store/currentStore"),
+    configs: sync("configs")
+  },
+  methods: {
+    async getAuthUser() {
+      if (this.token) {
+        const res = await getAuthUser();
+        this.user = res.data;
+      }
+    },
+    async getStore() {
+      const res = await findStores();
+      this.currentStore = res.data[0];
+    },
+    async getConfig() {
+      const res = await getConfigs();
+      this.configs = { ...this.configs, ...res.data };
+    }
   }
 };
 </script>
