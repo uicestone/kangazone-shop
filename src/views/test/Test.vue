@@ -20,7 +20,8 @@
         v-checkbox(label="是否打印小票" v-model="form.config.printTicket" clearable)
         v-text-field(label="指定签购单上的退款订单号类型" v-model="form.config.printIdType" clearable)
         v-text-field(label="备注" v-model="form.config.remarks" clearable)
-        v-btn(block @click="debug") 测试
+        v-btn(block color="primary" @click="debug") 测试
+        v-btn.mt-5(block color="success" @click="debugDrawer") 打开钱箱
       p {{msg}}
 
 
@@ -81,6 +82,9 @@ export default {
       form = _.omitBy(form, _.isNil);
       form.config = _.omitBy(form.config, _.isNil);
       $App.jsCallAndroid(JSON.stringify(form));
+    },
+    debugDrawer() {
+      $App.jsOpenDrawer();
     }
   }
 };

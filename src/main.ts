@@ -10,6 +10,14 @@ import vuetify from "./plugins/vuetify";
 import Notifications from "vue-notification";
 
 Vue.config.productionTip = false;
+Vue.config.errorHandler = (err, vm, info) => {
+  Vue.notify({
+    group: "api",
+    type: "error",
+    text: err.message,
+    duration: 2000
+  });
+};
 
 Vue.use(Notifications);
 
