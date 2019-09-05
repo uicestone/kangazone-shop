@@ -8,11 +8,13 @@
 import { sync } from "vuex-pathify";
 import { getAuthUser, logout } from "./services";
 import { findStores, getConfigs } from "./services/store";
+import { jsBridageBus } from "./services/payment";
 export default {
   created() {
     this.getAuthUser();
     this.getStore();
     this.getConfig();
+    window.sendJSMessage = this.sendJSMessage;
   },
   computed: {
     user: sync("auth/user"),
@@ -21,6 +23,10 @@ export default {
     configs: sync("configs")
   },
   methods: {
+    sendJSMessage(str) {
+      jsBridageBus.emit("javaCall", JSON.parse(str));
+      return "js调用成功";
+    },
     async getAuthUser() {
       if (this.token) {
         const res = await getAuthUser();

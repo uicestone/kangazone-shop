@@ -29,6 +29,7 @@
 
 <script>
 import { _ } from "../../utils/lodash";
+import { sendPaymentToSunmi } from "../../services/payment";
 
 export default {
   name: "Test",
@@ -60,10 +61,7 @@ export default {
     };
   },
   created() {},
-  mounted() {
-    //将要给原生调用的方法挂载到 window 上面
-    window.sendJSMessage = this.sendJSMessage;
-  },
+  mounted() {},
   methods: {
     selectType(val) {
       if (val == "refund") {
@@ -73,15 +71,10 @@ export default {
         this.form.transType = "00";
       }
     },
-    sendJSMessage(str) {
-      this.msg = str;
-      return "js调用成功";
-    },
-    debug() {
-      let { form } = this;
-      form = _.omitBy(form, _.isNil);
-      form.config = _.omitBy(form.config, _.isNil);
-      $App.jsCallAndroid(JSON.stringify(form));
+    async debug() {
+      let { amount, orderId, businessId } = this.form;
+      const data = await sendPaymentToSunmi({ amount, orderId, businessId });
+      this.msg = data;
     },
     debugDrawer() {
       $App.jsOpenDrawer();

@@ -46,24 +46,28 @@
             div
               v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 创建预约
           v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'")
-            v-text-field(label="手机号" v-model="createBookingForm.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
+            v-text-field(label="手机号" v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
             v-menu
               template(v-slot:activator="{on}")
-                v-text-field(label="选择日期" v-on="on"  v-model="createBookingForm.date")
-              v-date-picker(v-model="createBookingForm.date")
-            v-text-field(label="人数" v-model="createBookingForm.membersCount" required :rules="[v => !!v || '请输入人数']")
-            v-text-field(label="时长" v-model="createBookingForm.hours" required :rules="[v => !!v || '请输入时长']")
-            v-text-field(label="袜子数" v-model="createBookingForm.socksCount" required :rules="[v => !!v || '请输入袜子数']")
-            v-bottom-navigation(v-model="createBookingForm.paymentGateway" grow icons-and-text)
+                v-text-field(label="选择日期" v-on="on"  v-model="createBookingForm.form.date")
+              v-date-picker(v-model="createBookingForm.form.date")
+            v-text-field(label="人数" v-model="createBookingForm.form.membersCount" required :rules="[v => !!v || '请输入人数']")
+            v-text-field(label="时长" v-model="createBookingForm.form.hours" required :rules="[v => !!v || '请输入时长']")
+            v-text-field(label="袜子数" v-model="createBookingForm.form.socksCount" required :rules="[v => !!v || '请输入袜子数']")
+            v-bottom-navigation(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'")
                 v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value")
                   span {{item.label}}
                   v-icon {{item.icon}}
-            div.flex.mt-5.justify-center
-              v-btn(color="primary" :disabled="!createBookingForm.valid"  @click="createBooking") 创建订单
-              v-btn.ml-4(color="success" :disabled="!createBookingForm.valid"   @click="handleBooking") 确认订单
+            div.flex.mt-5.justify-center.items-center
+              span.mr-5.text-orange-600.text-lg ￥{{createBookingForm.price}}
+              v-btn(color="primary" :disabled="!createBookingForm.valid"  @click="createBooking" :loading="createBookingForm.loading_createBooking") 创建订单
+              v-bottom-sheet(v-model="createBookingForm.confirm" persistent)
+                v-sheet.px-10.flex.items-center(height="100px")
+                  v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认付款
+
           v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'")
             v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="'手环号'+index" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请输入手环号']")
-            v-btn(:disabled="!checkInForm.valid" @click="handleCheckIn") 签到
+            v-btn(:disabled="!checkInForm.valid" @click="handleCheckIn") 绑定手环
 
 </template>
 
@@ -71,9 +75,10 @@
 import { signup, User } from "../../services";
 import { findUser } from "../../services/user";
 import { sync } from "vuex-pathify";
-import { findBookings, createBooking, updateBooking } from "../../services/booking";
+import { findBookings, createBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { moment } from "../../utils/moment";
 import { config } from "../../../config";
+import { sendPaymentToSunmi, updatePayment } from "../../services/payment";
 
 export default {
   data() {
@@ -99,14 +104,29 @@ export default {
         loading: false
       },
       createBookingForm: {
-        type: "play",
-        date: moment().format("YYYY-MM-DD"),
-        hours: 1,
-        mobile: "13122381930",
-        membersCount: 1,
-        socksCount: 1,
-        paymentGateway: 0,
-        paymentGateways: [{ label: "扫码支付", value: "scan", icon: "mdi-qrcode" }, { label: "现金支付", value: "cash", icon: "mdi-cash" }, { label: "刷卡支付", value: "card", icon: "mdi-card" }]
+        form: {
+          type: "play",
+          date: moment().format("YYYY-MM-DD"),
+          hours: 1,
+          membersCount: 1,
+          socksCount: 1,
+          paymentGateway: 0
+        },
+        user: {
+          mobile: "13122381930",
+          credit: 200
+        },
+        price: 0,
+        confirm: false,
+        loading_price: false,
+        loading_confirm: false,
+        loading_createBooking: false,
+        paymentGateways: [
+          { label: "扫码支付", value: "scan", icon: "mdi-qrcode" },
+          { label: "现金支付", value: "cash", icon: "mdi-wallet" },
+          { label: "刷卡支付", value: "card", icon: "mdi-credit-card" }
+        ],
+        newBooking: {}
       },
       checkInForm: {
         booking: {
@@ -118,7 +138,10 @@ export default {
   },
   computed: {
     paymentGateway() {
-      return this.createBookingForm.paymentGateways[this.createBookingForm.paymentGateway].value;
+      if (this.createBookingForm.user.credit > this.createBookingForm.price) {
+        return "credit";
+      }
+      return this.createBookingForm.paymentGateways[this.createBookingForm.form.paymentGateway].value;
     },
     configs: sync("configs"),
     currentStore: sync("store/currentStore"),
@@ -128,6 +151,29 @@ export default {
     }
   },
   watch: {
+    "createBookingForm.form": {
+      async handler(newVal, oldVal) {
+        if (!oldVal || this.createBookingForm.loading_price) return;
+        oldVal.loading_price = true;
+        let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
+        const { paymentGateway } = this;
+        const res = await getBookingPrice({
+          store: this.currentStore.id,
+          type,
+          date,
+          hours,
+          checkInAt: moment().format("HH:mm"),
+          membersCount,
+          socksCount,
+          useCredit: paymentGateway == "credit",
+          paymentGateway
+        });
+        this.createBookingForm.price = res.data.price;
+        this.createBookingForm.loading_price = false;
+      },
+      immediate: true,
+      deep: true
+    },
     async "searchUserForm.searchText"(val) {
       const { searchText, loading } = this.searchUserForm;
       if (loading || !searchText) return;
@@ -157,13 +203,13 @@ export default {
       this.step = "createUser";
     },
     async createBookingFromSearchUser() {
-      this.createBookingForm.mobile = this.searchUserForm.user.mobile;
+      this.createBookingForm.user = this.searchUserForm.user;
       this.step = "createBooking";
     },
     async createBookingFromCreaetUser() {
       const { mobile, username, gender } = this.createUserForm;
       const res = await signup({ username, gender, mobile });
-      this.createBookingForm.mobile = this.createUserForm.mobile;
+      this.createBookingForm.user = res.data;
       this.step = "createBooking";
     },
     goCheckIn(booking) {
@@ -171,7 +217,8 @@ export default {
       this.step = "checkIn";
     },
     async createBooking() {
-      let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm;
+      this.createBookingForm.loading_createBooking = true;
+      let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
       const { paymentGateway } = this;
       const res = await createBooking({
         store: this.currentStore.id,
@@ -181,10 +228,29 @@ export default {
         checkInAt: moment().format("HH:mm"),
         membersCount,
         socksCount,
-        useCredit: paymentGateway == "cash",
-        paymentGateway
+        useCredit: true,
+        paymentGateway: paymentGateway == "credit" ? null : paymentGateway
       });
-      this.goCheckIn(res.data);
+      this.createBookingForm.loading_createBooking = false;
+      this.createBookingForm.newBooking = res.data;
+
+      switch (paymentGateway) {
+        case "scan":
+          const { payments, price, id: businessId } = res.data;
+          const [payment] = payments;
+          const { id: orderId, attach: orderInfo } = payment;
+          const paymentRes = await sendPaymentToSunmi({ amount: String(price), orderId, businessId, orderInfo });
+          if (paymentRes.resultCode !== "T00") {
+            throw new Error(`${paymentRes.resultCode}: ${paymentRes.resultMsg}`);
+          }
+          return this.goCheckIn(this.createUserForm.newBooking);
+        case "cash":
+        case "card":
+          this.createBookingForm.confirm = true;
+          break;
+        case "credit":
+          return this.goCheckIn(this.createUserForm.newBooking);
+      }
     },
     async handleCheckIn() {
       const {
@@ -193,7 +259,18 @@ export default {
       } = this.checkInForm;
       const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
     },
-    async handleBooking() {},
+    async comfirmPayment() {
+      this.createBookingForm.loading_confirm = true;
+      const {
+        newBooking: { payments }
+      } = this.createBookingForm;
+      const [payment] = payments;
+      const { id } = payment;
+      const res = await updatePayment({ paid: true, id });
+      this.createBookingForm.loading_confirm = false;
+      this.createBookingForm.confirm = false;
+      this.goCheckIn(this.createBookingForm.newBooking);
+    },
     getDropDownText(i) {
       return `${i.checkInAt}-${i.hours}小时-${i.membersCount}人`;
     }
