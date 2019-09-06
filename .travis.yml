@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - lts/*
+cache: yarn
+script: yarn build
+after_success:
+  - echo "${DEPLOY_KEY}" | base64 --decode > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - scp -r -o "StrictHostKeyChecking no" dist/* ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}
