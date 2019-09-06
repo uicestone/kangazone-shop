@@ -68,7 +68,9 @@ export const getBookingPrice = ({ store, type, date, hours, checkInAt, membersCo
   });
 };
 
-export const updateBooking = ({ id, bandIds, status }) => {
-  const data = _.omitBy({ bandIds, status }, _.isNil);
-  return axios.request<Booking>({ method: "PUT", url: `/api/booking/${id}`, data });
+export const updateBooking = ({ id, bandIds, status, hours, paymentGateway, useCredit = true }) => {
+  const data = _.omitBy({ bandIds, status, hours }, _.isNil);
+  const params = _.omitBy({ paymentGateway, useCredit }, _.isNil);
+
+  return axios.request<Booking>({ method: "PUT", url: `/api/booking/${id}`, data, params });
 };
