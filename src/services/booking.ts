@@ -48,7 +48,7 @@ export const createBooking = ({ store, type, date, hours, checkInAt, membersCoun
   const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer }, _.isNil);
   const params = _.omitBy({ useCredit, paymentGateway }, _.isNil);
   return axios.request<Booking>({
-    url: `/api/booking`,
+    url: `/booking`,
     params,
     method: "POST",
     data
@@ -58,7 +58,7 @@ export const createBooking = ({ store, type, date, hours, checkInAt, membersCoun
 export const getBookingPrice = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer }) => {
   const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer }, _.isNil);
   return axios.request<Booking>({
-    url: `/api/booking-price`,
+    url: `/booking-price`,
     params: {
       useCredit,
       paymentGateway

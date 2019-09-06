@@ -8,20 +8,20 @@ export class User {
 export const login = ({ username, password }: { username: string; password: string }) =>
   axios.request<{ token: string; user: User }>({
     method: "POST",
-    url: "/api/auth/login",
+    url: "/auth/login",
     data: { login: username, password }
   });
 
 export const signup = ({ username, gender, mobile }) =>
   axios.request({
     method: "POST",
-    url: "/api/user",
+    url: "/user",
     data: { name: username, gender, mobile }
   });
 
 export const getAuthUser = () =>
   axios.request<User>({
-    url: "/api/auth/user"
+    url: "/auth/user"
   });
 
 export const logout = () => {
