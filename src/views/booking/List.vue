@@ -25,34 +25,6 @@
           template(v-slot:item.action="{item}")
             a(small @click="editBooking(item)") 编辑
         v-pagination(v-model="page" :length="total" total-visible="7")
-    v-dialog(v-model="showEditBooking")
-      v-card
-        v-card-title 订单详情
-        v-list-item
-          v-list-item-content 昵称
-          v-list-item-action {{editBookingItem.customer.name}}
-        v-list-item
-          v-list-item-content 手机号
-          v-list-item-action {{editBookingItem.customer.mobile}}
-        v-list-item
-          v-list-item-content 日期
-          v-list-item-action {{editBookingItem.date}}
-        v-list-item
-          v-list-item-content 时间
-          v-list-item-action {{editBookingItem.hours}}
-        v-list-item
-          v-list-item-content 人数
-          v-list-item-action {{editBookingItem.membersCount}}
-        v-list-item
-          v-list-item-content 袜子数
-          v-list-item-action {{editBookingItem.socksCount}}
-        v-list-item
-          v-list-item-content 备注
-          v-list-item-action {{editBookingItem.remarks}}
-        v-card-actions
-          v-btn(color="red" dark) 退款并取消
-          v-btn(color="orange" dark) 退押金
-          v-btn(color="green" dark) 延长时间
 
         
 </template>
@@ -61,12 +33,16 @@
 import get from "lodash/get";
 import { findBookings } from "../../services/booking";
 import { sync } from "vuex-pathify";
+import { _ } from "../../utils/lodash";
+import { moment } from "../../utils/moment";
 
 export default {
   data() {
     return {
       searchForm: {
-        mobile: "",
+        mobile: null,
+        due: null,
+        date: null,
         status: null,
         type: null
       },
@@ -126,6 +102,9 @@ export default {
     configs: sync("configs")
   },
   mounted() {
+    const { due, status, type, date } = this.$route.query;
+    console.log(this.$route.query);
+    this.searchForm = Object.assign({}, this.searchForm, _.omitBy({ due, status, type, date }, _.isNil));
     this.getBookings();
   },
   watch: {
@@ -140,10 +119,10 @@ export default {
       const {
         limit,
         page,
-        searchForm: { status, type, mobile }
+        searchForm: { status, type, mobile, date, due }
       } = this;
       const skip = (page - 1) * limit;
-      const res = await findBookings({ limit, skip: skip > 0 ? skip : 0, type, status, keyword: mobile });
+      const res = await findBookings({ limit, skip: skip > 0 ? skip : 0, type, status, keyword: mobile, date, due });
       const end = res.headers["items-end"];
       const start = res.headers["items-start"];
       const total = res.headers["items-total"];
@@ -154,8 +133,7 @@ export default {
       this.loading = false;
     },
     editBooking(item) {
-      this.editBookingItem = item;
-      this.showEditBooking = true;
+      this.$router.push({ name: "bookingDetail", params: { id: item.id } });
     }
   }
 };

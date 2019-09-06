@@ -37,11 +37,15 @@ export interface QueryArgs {
 
 export const findBookings = (args: BookingFindArgs) => {
   const params = _.omitBy(args, _.isNil);
-  return axios.request({ url: "/api/booking", params });
+  return axios.request<Booking[]>({ url: "/api/booking", params });
 };
 
-export const createBooking = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway }) => {
-  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code }, _.isNil);
+export const getBooking = ({ id }) => {
+  return axios.request<Booking>({ url: `/api/booking/${id}` });
+};
+
+export const createBooking = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer }) => {
+  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer }, _.isNil);
   const params = _.omitBy({ useCredit, paymentGateway }, _.isNil);
   return axios.request<Booking>({
     url: `/api/booking`,
@@ -51,8 +55,8 @@ export const createBooking = ({ store, type, date, hours, checkInAt, membersCoun
   });
 };
 
-export const getBookingPrice = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway }) => {
-  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code }, _.isNil);
+export const getBookingPrice = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer }) => {
+  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer }, _.isNil);
   return axios.request<Booking>({
     url: `/api/booking-price`,
     params: {

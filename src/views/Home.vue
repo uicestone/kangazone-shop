@@ -11,18 +11,18 @@
     v-container
       div.p-10
         div.flex.text.justify-between.items-center
-          div(@click="goBookingList({type: '场内人数'})")
+          div(@click="goBookingList({type: 'in_services'})")
             p 302
             p 场内人数
-          div(@click="goBookingList({type: '即将超时 '})")
+          div(@click="goBookingList({type: 'due'})")
             p 12 
             p 即将超时 
           div(@click="goBookingCreate") 非预约
         div.flex.text.justify-between.items-center.pt-4
-          div(@click="goBookingList({type: '当前订单 '})")
+          div(@click="goBookingList({type: 'day'})")
             p 806
             p 当前订单
-          div(@click="goBookingList({type: '当日流水 '})")
+          div
             p ￥12345 
             p 当日流水 
           div(@click="goBookingCreate") 预约入场
@@ -34,6 +34,8 @@
 <script>
 import { sync } from "vuex-pathify";
 import { logout } from "../services/auth";
+import { getStats } from "../services/store";
+import { moment } from "../utils/moment";
 // @ is an alias to /src
 export default {
   name: "home",
@@ -43,15 +45,33 @@ export default {
     };
   },
   computed: {
-    token: sync("auth/token")
+    token: sync("auth/token"),
+    stats: sync("store/stats")
+  },
+  mounted() {
+    this.getStats();
   },
   methods: {
+    async getStats() {
+      const res = await getStats();
+      this.stats = res.data;
+    },
     goBookingList({ type }) {
+      let query;
+      switch (type) {
+        case "in_services":
+          query = { status: "IN_SERVICE" };
+          break;
+        case "day":
+          query = { date: moment().format("YYYY-MM-DD") };
+          break;
+        case "due":
+          query = { due: true };
+          break;
+      }
       this.$router.push({
         name: "bookingList",
-        params: {
-          type
-        }
+        query
       });
     },
     goBookingCreate({ type }) {

@@ -60,14 +60,14 @@
                   v-icon {{item.icon}}
             div.flex.mt-5.justify-center.items-center
               span.mr-5.text-orange-600.text-lg ￥{{createBookingForm.price}}
-              v-btn(color="primary" :disabled="!createBookingForm.valid"  @click="createBooking" :loading="createBookingForm.loading_createBooking") 创建订单
+              v-btn(color="primary" :disabled="!createBookingForm.valid || createBookingForm.price =='0'"  @click="createBooking" :loading="createBookingForm.loading_createBooking") 创建订单
               v-bottom-sheet(v-model="createBookingForm.confirm" persistent)
                 v-sheet.px-10.flex.items-center(height="100px")
                   v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认付款
 
           v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'")
             v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="'手环号'+index" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请输入手环号']")
-            v-btn(:disabled="!checkInForm.valid" @click="handleCheckIn") 绑定手环
+            v-btn(:disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环
 
 </template>
 
@@ -84,7 +84,7 @@ export default {
   data() {
     return {
       today: moment().format("YYYY-MM-DD"),
-      step: "createBooking",
+      step: "searchUser",
       searchUserForm: {
         user: {
           id: "",
@@ -113,8 +113,7 @@ export default {
           paymentGateway: 0
         },
         user: {
-          mobile: "13122381930",
-          credit: 200
+          mobile: ""
         },
         price: 0,
         confirm: false,
@@ -129,6 +128,7 @@ export default {
         newBooking: {}
       },
       checkInForm: {
+        loading: false,
         booking: {
           membersCount: 1
         },
@@ -156,12 +156,15 @@ export default {
         if (!oldVal || this.createBookingForm.loading_price) return;
         oldVal.loading_price = true;
         let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
+        const { id: customerId } = this.createBookingForm.user;
+
         const { paymentGateway } = this;
         const res = await getBookingPrice({
           store: this.currentStore.id,
           type,
           date,
           hours,
+          customer: customerId,
           checkInAt: moment().format("HH:mm"),
           membersCount,
           socksCount,
@@ -219,12 +222,14 @@ export default {
     async createBooking() {
       this.createBookingForm.loading_createBooking = true;
       let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
+      const { id: customerId } = this.createBookingForm.user;
       const { paymentGateway } = this;
       const res = await createBooking({
         store: this.currentStore.id,
         type,
         date,
         hours,
+        customer: customerId,
         checkInAt: moment().format("HH:mm"),
         membersCount,
         socksCount,
@@ -243,21 +248,25 @@ export default {
           if (paymentRes.resultCode !== "T00") {
             throw new Error(`${paymentRes.resultCode}: ${paymentRes.resultMsg}`);
           }
-          return this.goCheckIn(this.createUserForm.newBooking);
+          return this.goCheckIn(this.createBookingForm.newBooking);
         case "cash":
         case "card":
           this.createBookingForm.confirm = true;
           break;
         case "credit":
-          return this.goCheckIn(this.createUserForm.newBooking);
+          return this.goCheckIn(this.createBookingForm.newBooking);
       }
     },
     async handleCheckIn() {
+      this.checkInForm.loading = true;
       const {
         booking: { id },
         bandIds
       } = this.checkInForm;
       const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
+      const booking = res.data;
+      this.checkInForm.loading = false;
+      this.$router.push({ name: "bookingDetail", params: { id: booking.id } });
     },
     async comfirmPayment() {
       this.createBookingForm.loading_confirm = true;

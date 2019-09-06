@@ -6,3 +6,8 @@ export const findStores = () =>
   });
 
 export const getConfigs = () => axios.request({ url: "/api/config" });
+
+export const getStats = () =>
+  axios.request({
+    url: "/api/stats"
+  });

@@ -6,6 +6,12 @@ const state = {
     name: "",
     distance: 0,
     phone: null
+  },
+  stats: {
+    checkedInCount: 0,
+    dueCount: 0,
+    todayCount: 0,
+    todayAmount: 0
   }
 };
 

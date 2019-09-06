@@ -5,6 +5,8 @@ import Login from "./views/Login.vue";
 import bookingList from "./views/booking/List.vue";
 import bookingIndex from "./views/booking/index.vue";
 import bookingCreate from "./views/booking/Create.vue";
+import bookingDetail from "./views/booking/Detail.vue";
+
 import Test from "./views/test/Test.vue";
 
 import get from "lodash/get";
@@ -33,7 +35,7 @@ const router = new Router({
       },
       children: [
         {
-          path: "list/:type",
+          path: "list",
           name: "bookingList",
           component: bookingList
         },
@@ -41,6 +43,11 @@ const router = new Router({
           path: "create",
           name: "bookingCreate",
           component: bookingCreate
+        },
+        {
+          path: "detail/:id",
+          name: "bookingDetail",
+          component: bookingDetail
         }
       ]
     },
