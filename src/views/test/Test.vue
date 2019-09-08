@@ -24,7 +24,7 @@
         v-btn.mt-5(v-if="['refund','consume'].includes(type)" block color="success" @click="debugDrawer") 打开钱箱
       p(v-if="['refund','consume'].includes(type)") {{msg}}
 
-      v-text-field(v-if="['print'].includes(type)" label="设备名称" v-model="printForm.name" clearable)
+      v-text-field(v-if="['print'].includes(type)" label="venderId" v-model="printForm.venderId" clearable)
       v-btn.mt-5(v-if="['print'].includes(type)" block color="success" @click="print") 打印
       v-btn.mt-5(v-if="['print'].includes(type)" block color="warning" @click="getUSBDevices") 获取usb设备
       p(v-if="['print'].includes(type)") {{printForm.msg}}
@@ -50,7 +50,7 @@ export default {
       items: [{ value: "consume", label: "消费" }, { value: "refund", label: "退款" }, { value: "print", label: "打印" }],
       type: "consume",
       printForm: {
-        name: "",
+        venderId: "26728",
         msg: ""
       },
       form: {
@@ -95,8 +95,7 @@ export default {
         .encode();
 
       result = Buffer.from(result).toString("hex"); //?
-      console.log(result);
-      $App.jsPrint("26728", result);
+      $App.jsPrint(this.printForm.venderId, result);
     },
     selectType(val) {
       if (val == "refund") {
