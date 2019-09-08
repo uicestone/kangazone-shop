@@ -3661,13 +3661,6 @@ gauge@~2.7.3:
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
 
-gbk-string@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/gbk-string/-/gbk-string-0.1.0.tgz#7d4a0b1d095e07a6e39b191a8fd350f1c2cf8992"
-  integrity sha512-bx75Kj6F9oCEB5OHTCYe10DXglznGHYzGUJ4Iw5mXPFoA4HUBdx1T4pZwl4bc7Dz8jNLYnzxw2hssiWKaeCUcw==
-  dependencies:
-    iconv-lite "^0.4.19"
-
 get-caller-file@^1.0.1:
   version "1.0.3"
   resolved "https://registry.npm.taobao.org/get-caller-file/download/get-caller-file-1.0.3.tgz#f978fa4c90d1dfe7ff2d6beda2a515e713bdcf4a"
