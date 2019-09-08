@@ -53,7 +53,7 @@ export default {
       printForm: {
         venderId: "26728",
         msg: "",
-        encodingType: "cp862",
+        encodingType: "cp860",
         encoding: [
           "cp437",
           "cp737",
@@ -121,7 +121,7 @@ export default {
     print() {
       let result = encoder
         .initialize()
-        .codepage("cp936")
+        .codepage(this.printForm.encodingType)
         .newline()
         .line("我是一段中文")
         .right()
