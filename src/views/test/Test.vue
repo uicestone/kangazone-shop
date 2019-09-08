@@ -25,7 +25,8 @@
       p(v-if="['refund','consume'].includes(type)") {{msg}}
 
       v-text-field(v-if="['print'].includes(type)" label="venderId" v-model="printForm.venderId" clearable)
-      v-select(label="编码" v-model="printForm.encodingType" :items="printForm.encoding" clearable)
+      v-text-field(v-if="['print'].includes(type)" label="内容" v-model="printForm.content" clearable)
+      v-select(v-if="['print'].includes(type)" label="编码" v-model="printForm.encodingType" :items="printForm.encoding" clearable)
       v-btn.mt-5(v-if="['print'].includes(type)" block color="success" @click="print") 打印
       v-btn.mt-5(v-if="['print'].includes(type)" block color="warning" @click="getUSBDevices") 获取usb设备
       p(v-if="['print'].includes(type)") {{printForm.msg}}
@@ -54,6 +55,7 @@ export default {
         venderId: "26728",
         msg: "",
         encodingType: "cp860",
+        content: "1234abcd",
         encoding: [
           "cp437",
           "cp737",
@@ -122,12 +124,8 @@ export default {
       let result = encoder
         .initialize()
         .codepage(this.printForm.encodingType)
-        .newline()
-        .line("我是一段中文")
-        .right()
-        .next()
+        .line(this.printForm.content)
         .encode();
-
       result = Buffer.from(result).toString("hex"); //?
       $App.jsPrint(this.printForm.venderId, result);
     },
