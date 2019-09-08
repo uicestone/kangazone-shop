@@ -10,7 +10,7 @@
           div(class="flex flex-col md:flex-row")
             v-select(label="类型" v-model="searchForm.type" :items="configs.bookingTypes" item-text="label" item-value="value" clearable)
             v-select(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
-            v-text-field(label="手机号" v-model="searchForm.mobile" clearable)
+            v-text-field(label="关键词" v-model="searchForm.customerKeyword" clearable)
           div
             v-btn(@click="getBookings") 搜索
         
@@ -40,7 +40,7 @@ export default {
   data() {
     return {
       searchForm: {
-        mobile: null,
+        customerKeyword: null,
         due: null,
         date: null,
         status: null,
@@ -119,10 +119,10 @@ export default {
       const {
         limit,
         page,
-        searchForm: { status, type, mobile, date, due }
+        searchForm: { status, type, customerKeyword, date, due }
       } = this;
       const skip = (page - 1) * limit;
-      const res = await findBookings({ limit, skip: skip > 0 ? skip : 0, type, status, keyword: mobile, date, due });
+      const res = await findBookings({ limit, skip: skip > 0 ? skip : 0, type, status, customerKeyword, date, due });
       const end = res.headers["items-end"];
       const start = res.headers["items-start"];
       const total = res.headers["items-total"];

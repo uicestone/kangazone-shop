@@ -1,14 +1,11 @@
 <template lang="pug">
   div
     v-app-bar(color="secondary")
-      v-app-bar-nav-icon(@click="$router.go(-1)")
+      v-app-bar-nav-icon(@click="handleBack")
         v-icon mdi-chevron-left
       v-toolbar-title 创建订单
     v-container.flex.justify-center.items-center.h-content
       v-card
-        v-toolbar(flat color="grey lighten-4" dense v-if="step !== 'searchUser'")
-          v-btn(icon @click="step = 'searchUser'")
-            v-icon mdi-arrow-left
         div.p-10
           v-form(ref="searchUserForm" v-if="step == 'searchUser'")
             v-autocomplete(
@@ -192,7 +189,7 @@ export default {
       //TODO: store id
       let res;
       if (config.IS_PROD) {
-        res = await findBookings({ customer: val.id, date: this.today, store: this.currentStore.id });
+        res = await findBookings({ customer: val.id, date: this.today, store: this.currentStore.id, status: "BOOKED" });
       } else {
         res = await findBookings({ customer: val.id });
       }
@@ -282,6 +279,12 @@ export default {
     },
     getDropDownText(i) {
       return `${i.checkInAt}-${i.hours}小时-${i.membersCount}人`;
+    },
+    handleBack() {
+      if (this.step == "searchUser") {
+        return this.$router.go(-1);
+      }
+      this.step = "searchUser";
     }
   }
 };

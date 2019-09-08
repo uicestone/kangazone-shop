@@ -50,7 +50,8 @@ export default {
   name: "home",
   data() {
     return {
-      drawer: false
+      drawer: false,
+      today: moment().format("YYYY-MM-DD")
     };
   },
   computed: {
@@ -65,19 +66,7 @@ export default {
       const res = await getStats();
       this.stats = res.data;
     },
-    goBookingList({ type }) {
-      let query;
-      switch (type) {
-        case "in_services":
-          query = { status: "IN_SERVICE" };
-          break;
-        case "day":
-          query = { date: moment().format("YYYY-MM-DD") };
-          break;
-        case "due":
-          query = { due: true };
-          break;
-      }
+    goBookingList(query) {
       this.$router.push({
         name: "bookingList",
         query

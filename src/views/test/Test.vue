@@ -3,26 +3,31 @@
     v-card.p-10
       v-form
         v-select(label="交易类型" v-model="type" :items="items" item-text="label" item-value="value" @change="selectType")
-        v-text-field(label="应用类型" v-model="form.appType" clearable)
-        v-text-field(label="应用包名" v-model="form.appId" clearable)
-        v-text-field(label="交易类型" v-model="form.transType" clearable)
-        v-text-field(label="交易金额" v-model="form.amount" clearable)
-        v-text-field(label="Saas软件订单号" v-model="form.orderId" clearable)
-        v-text-field(label="Saas系统业务订单号" v-model="form.businessId" clearable)
-        v-text-field(v-if="type=='refund'" label="原收银台流水号" v-model="form.oriMisId" clearable)
-        v-text-field(v-if="type=='refund'" label="原Saas软件订单号" v-model="form.oriOrderId" clearable)
-        v-text-field(v-if="type=='refund'"  label="原商户订单号" v-model="form.oriPlatformId" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="应用类型" v-model="form.appType" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="应用包名" v-model="form.appId" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="交易类型" v-model="form.transType" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="交易金额" v-model="form.amount" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="Saas软件订单号" v-model="form.orderId" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="Saas系统业务订单号" v-model="form.businessId" clearable)
+        v-text-field(v-if="['refund'].includes(type)"  label="原收银台流水号" v-model="form.oriMisId" clearable)
+        v-text-field(v-if="['refund'].includes(type)"  label="原Saas软件订单号" v-model="form.oriOrderId" clearable)
+        v-text-field(v-if="['refund'].includes(type)"   label="原商户订单号" v-model="form.oriPlatformId" clearable)
 
-        v-text-field(v-if="type=='consume'" label="商品信息" v-model="form.orderInfo" clearable)
-        v-text-field(v-if="type=='consume'"  label="支付吗" v-model="form.payCode" clearable)
-        v-checkbox(label="是否显示UI界面" v-model="form.config.processDisplay" clearable)
-        v-checkbox(label="是否展示交易结果页" v-model="form.config.resultDisplay" clearable)
-        v-checkbox(label="是否打印小票" v-model="form.config.printTicket" clearable)
-        v-text-field(label="指定签购单上的退款订单号类型" v-model="form.config.printIdType" clearable)
-        v-text-field(label="备注" v-model="form.config.remarks" clearable)
-        v-btn(block color="primary" @click="debug") 测试
-        v-btn.mt-5(block color="success" @click="debugDrawer") 打开钱箱
-      p {{msg}}
+        v-text-field(v-if="['consume'].includes(type)" label="商品信息" v-model="form.orderInfo" clearable)
+        v-text-field(v-if="[,'consume'].includes(type)"  label="支付吗" v-model="form.payCode" clearable)
+        v-checkbox(v-if="['refund','consume'].includes(type)" label="是否显示UI界面" v-model="form.config.processDisplay" clearable)
+        v-checkbox(v-if="['refund','consume'].includes(type)" label="是否展示交易结果页" v-model="form.config.resultDisplay" clearable)
+        v-checkbox(v-if="['refund','consume'].includes(type)" label="是否打印小票" v-model="form.config.printTicket" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="指定签购单上的退款订单号类型" v-model="form.config.printIdType" clearable)
+        v-text-field(v-if="['refund','consume'].includes(type)" label="备注" v-model="form.config.remarks" clearable)
+        v-btn(v-if="['refund','consume'].includes(type)" block color="primary" @click="debug") 测试
+        v-btn.mt-5(v-if="['refund','consume'].includes(type)" block color="success" @click="debugDrawer") 打开钱箱
+      p(v-if="['refund','consume'].includes(type)") {{msg}}
+
+      v-text-field(v-if="['print'].includes(type)" label="设备名称" v-model="form.appType" clearable)
+      v-btn.mt-5(v-if="['print'].includes(type)" block color="success" @click="connectPrinter") 连接打印机
+      v-btn.mt-5(v-if="['print'].includes(type)" block color="success" @click="print") 打印
+
 
 
 </template>
@@ -30,13 +35,20 @@
 <script>
 import { _ } from "../../utils/lodash";
 import { sendPaymentToSunmi } from "../../services/payment";
+import EscPosEncoder from "@xinghe/esc-pos-encoder";
+import { Buffer } from "buffer/";
+
+let encoder = new EscPosEncoder();
 
 export default {
   name: "Test",
   data() {
     return {
-      items: [{ value: "consume", label: "消费" }, { value: "refund", label: "退款" }],
+      items: [{ value: "consume", label: "消费" }, { value: "refund", label: "退款" }, { value: "print", label: "打印" }],
       type: "consume",
+      printForm: {
+        name: ""
+      },
       form: {
         appType: "01",
         appId: "com.kangazone.shop",
@@ -63,6 +75,23 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    connectPrinter() {
+      $App.jsGetDevice(this.printForm.name);
+    },
+    print() {
+      let result = encoder
+        .initialize()
+        .codepage("cp936")
+        .text("The quick brown fox jumps over the lazy dog")
+        .newline()
+        .line("我是一段中文")
+        .right()
+        .next()
+        .encode();
+
+      result = Buffer.from(result).toString("hex"); //?
+      $App.jsPrint(result);
+    },
     selectType(val) {
       if (val == "refund") {
         this.form.transType = "09";

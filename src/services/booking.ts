@@ -10,7 +10,7 @@ export type BookingFindArgs = QueryArgs & {
   date?: string;
   status?: BookingStatus;
   due?: boolean;
-  keyword?: string;
+  customerKeyword?: string;
   customer?: string;
   store?: string;
 };
