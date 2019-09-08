@@ -42,6 +42,7 @@ import { _ } from "../../utils/lodash";
 import { sendPaymentToSunmi } from "../../services/payment";
 import EscPosEncoder from "@xinghe/esc-pos-encoder";
 import { Buffer } from "buffer/";
+import { encodeGBK, decodeGBK } from "gbk-string";
 
 let encoder = new EscPosEncoder();
 
@@ -124,9 +125,14 @@ export default {
       let result = encoder
         .initialize()
         .codepage(this.printForm.encodingType)
-        .line(this.printForm.content)
+        .line(encodeGBK(this.printForm.content))
         .encode();
+      console.log(encodeGBK(this.printForm.content));
+      console.log(result);
+
       result = Buffer.from(result).toString("hex"); //?
+      console.log(result);
+
       $App.jsPrint(this.printForm.venderId, result);
     },
     selectType(val) {
