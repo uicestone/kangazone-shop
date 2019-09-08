@@ -5,7 +5,7 @@
         v-icon mdi-chevron-left
       v-toolbar-title 创建/选择预约
     v-container.flex.justify-center.items-center.h-content
-      v-card.py-3.px-10.mx-10(width="600px")
+      v-card.py-4.px-7
         div
           v-form(ref="searchUserForm" v-if="step == 'searchUser'")
             v-autocomplete(
@@ -44,31 +44,34 @@
             div
               v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 保存用户并创建预约
           v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'")
-            v-text-field(label="手机号" v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
-            v-menu
-              template(v-slot:activator="{on}")
-                v-text-field(label="选择日期" v-on="on"  v-model="createBookingForm.form.date")
-              v-date-picker(v-model="createBookingForm.form.date")
-            v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
-              template(v-slot:label)
-                p.w-12 人数
-              template(v-slot:append)
-                v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px")
-            v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount" @change="i => createBookingForm.form.socksCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
-              template(v-slot:label)
-                p.w-12 袜子数
-              template(v-slot:append)
-                v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px")
-            v-btn-toggle.my-4(v-model="createBookingForm.form.hours" mandatory)
-              v-btn.px-10(:value=1 text) 1小时
-              v-btn.px-10(:value=2 text) 2小时
-              v-btn.px-10(:value=3 text) 3小时
+            div.flex
+              div(style="flex:2")
+                v-text-field(label="手机号" v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
+                v-menu
+                  template(v-slot:activator="{on}")
+                    v-text-field(label="选择日期" v-on="on"  v-model="createBookingForm.form.date")
+                  v-date-picker(v-model="createBookingForm.form.date")
+              div.pl-5(style="flex:3;width:70%")
+                v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
+                  template(v-slot:label)
+                    p.w-12 人数
+                  template(v-slot:append)
+                    v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px")
+                v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount" @change="i => createBookingForm.form.socksCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
+                  template(v-slot:label)
+                    p.w-12 袜子数
+                  template(v-slot:append)
+                    v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px")
+                v-btn-toggle.my-4(v-model="createBookingForm.form.hours" mandatory)
+                  v-btn.px-10(:value=1 text) 1小时
+                  v-btn.px-10(:value=2 text) 2小时
+                  v-btn.px-10(:value=3 text) 3小时
 
-            v-bottom-navigation(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'")
+            v-bottom-navigation.mt-2(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none")
                 v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value")
                   span {{item.label}}
                   v-icon {{item.icon}}
-            div.flex.mt-8.justify-center.items-center
+            div.flex.mt-2.justify-center.items-center
               span.mr-5.text-orange-600.text-lg ￥{{createBookingForm.price}}
               v-btn(color="primary" :disabled="!createBookingForm.valid || createBookingForm.price =='0'"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
               v-bottom-sheet(v-model="createBookingForm.confirm" persistent)

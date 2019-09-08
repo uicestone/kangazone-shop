@@ -31,7 +31,7 @@
           div.number {{ stats.todayCount }}
           div.label 当日人数
         v-card(:elevation="5")
-          div.number ￥{{ stats.todayAmount }}
+          div.number ￥{{ stats.todayAmount.toFixed(0) }}
           div.label 当日流水 
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 预约入场
