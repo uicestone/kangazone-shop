@@ -1,31 +1,40 @@
 <template lang="pug">
   div
-    v-app-bar( color="#6A76AB" dark)
+    v-app-bar(color="primary")
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
-      v-toolbar-title 首页
-    v-navigation-drawer(v-model="drawer" absolute bottom temporary)
-      v-list(nav dense)
-        v-list-item-group
-          v-list-item(@click="logout") 退出登录
+      v-toolbar-title 概况
+    v-navigation-drawer(v-model="drawer" bottom absolute height="auto")
+      v-list-item
+        v-list-item-content
+          v-list-item-title.title
+            | Kanga Zone 商户
+          v-list-item-subtitle
+            | 技术支持：诗序软件
+      v-divider
+      v-list(dense nav)
+        v-list-item(@click="logout")
+          v-icon mdi-logout
+          span 退出登录
 
-    v-container
-      div.p-10
-        div.flex.text.justify-between.items-center
-          div(@click="goBookingList({type: 'in_services'})")
-            p 302
-            p 场内人数
-          div(@click="goBookingList({type: 'due'})")
-            p 12 
-            p 即将超时 
-          div(@click="goBookingCreate") 非预约
-        div.flex.text.justify-between.items-center.pt-4
-          div(@click="goBookingList({type: 'day'})")
-            p 806
-            p 当前订单
-          div
-            p ￥12345 
-            p 当日流水 
-          div(@click="goBookingCreate") 预约入场
+    v-container.flex.flex-column.stats(style="height:calc(100vh - 56px)")
+      div.flex.text.justify-between.items-center.align-stretch
+        v-card(@click="goBookingList({status: 'IN_SERVICE'})" :elevation="5")
+          div.number 302
+          div.label 场内人数
+        v-card(@click="goBookingList({due: true})" :elevation="5")
+          div.number 12 
+          div.label 即将超时 
+        v-card.action.secondary(@click="goBookingCreate" :elevation="5")
+          v-card-actions 非预约
+      div.flex.text.justify-between.items-center.pt-4.align-stretch
+        v-card(@click="goBookingList({date: today})" :elevation="5")
+          div.number 806
+          div.label 当日订单
+        v-card(:elevation="5")
+          div.number ￥12345 
+          div.label 当日流水 
+        v-card.action.secondary(@click="goBookingCreate" :elevation="5")
+          v-card-actions 预约入场
     
 
     
@@ -85,3 +94,34 @@ export default {
   }
 };
 </script>
+
+<style lang="stylus" scoped>
+.container
+  max-width none
+.v-navigation-drawer--close
+  height 0 !important
+.stats .v-card
+  display flex
+  flex-direction column
+  justify-content center
+  width 32%
+  height 100%
+  .number
+    display flex
+    align-items center
+    justify-content center
+    font-size 2.75rem
+    font-weight lighter
+    flex 2
+  .label
+    font-size 1rem
+    font-weight normal
+    flex 1
+  &.action
+    border-top 50% solid transparent
+    border-bottom 50% solid transparent
+    border-left 50% solid green
+    .v-card__actions
+      justify-content center
+      font-size 2rem
+</style>
