@@ -19,19 +19,19 @@
     v-container.flex.flex-column.stats(style="height:calc(100vh - 56px)")
       div.flex.text.justify-between.items-center.align-stretch
         v-card(@click="goBookingList({status: 'IN_SERVICE'})" :elevation="5")
-          div.number 302
+          div.number {{ stats.checkedInCount }}
           div.label 场内人数
         v-card(@click="goBookingList({due: true})" :elevation="5")
-          div.number 12 
+          div.number {{ stats.dueCount }}
           div.label 即将超时 
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 非预约
       div.flex.text.justify-between.items-center.pt-4.align-stretch
         v-card(@click="goBookingList({date: today})" :elevation="5")
-          div.number 806
-          div.label 当日订单
+          div.number {{ stats.todayCount }}
+          div.label 当日人数
         v-card(:elevation="5")
-          div.number ￥12345 
+          div.number ￥{{ stats.todayAmount }}
           div.label 当日流水 
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 预约入场
