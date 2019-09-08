@@ -8,11 +8,14 @@
       v-card.p-4
         v-card-title 订单详情
         v-list-item
+          v-list-item-content id
+          v-list-item-action {{booking.id}}
+        v-list-item
           v-list-item-content 状态
-          v-list-item-action {{booking.status}}
+          v-list-item-action {{configs.bookingStatusMap[booking.status]}}
         v-list-item
           v-list-item-content 类型
-          v-list-item-action {{booking.type}}
+          v-list-item-action {{configs.bookingTypeMap[booking.type]}}
         v-list-item
           v-list-item-content 昵称
           v-list-item-action {{booking.customer.name}}
@@ -35,18 +38,21 @@
           v-list-item-content 备注
           v-list-item-action {{booking.remarks}}
         v-card-actions
-          v-bottom-sheet(v-model="finishForm.confirm")
+          v-bottom-sheet(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="finishForm.confirm")
             template(v-slot:activator="{on}")
               v-btn(color="success" dark v-on="on") 完成订单
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="primary"  @click="finishBooking" :loading="finishForm.loading" ) 确认完成
-          v-bottom-sheet.ml-4(v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
+
+          v-bottom-sheet.ml-4(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
             template(v-slot:activator="{on}")
               v-btn(color="cyan" dark v-on="on") 延长时间
-            v-sheet.p-10.items-center(height="300px")
+            v-sheet.p-10.items-center(height="320px")
               v-form(v-model="extendForm.valid")
-                span.text-3xl.text-center ￥{{extendForm.price}}
-                v-text-field(label="延长时间" v-model="extendForm.form.hours" required :rules="[v => !!v || '请输入时长']")
+                p.text-3xl.text-center ￥{{extendForm.price}}
+                v-btn-toggle.my-4(v-model="extendForm.form.hours")
+                  v-btn.px-10(:value=1 text) 1小时
+                  v-btn.px-10(:value=2 text v-if="booking.hours < 2") 2小时
                 v-bottom-navigation(v-model="extendForm.form.paymentGateway" grow icons-and-text)
                   v-btn(v-for="item in extendForm.paymentGateways" :key="item.value")
                     span {{item.label}}
@@ -54,12 +60,25 @@
               v-btn.mt-5.w-full(v-if="!extendForm.confirm_payment" block color="primary"  @click="extendBooking" :loading="extendForm.loading || extendForm.loading_price" :disabled="extendForm.price == 0") 确认延长
               v-btn.mt-5.w-full(v-if="extendForm.confirm_payment" block color="success"  @click="comfirmPayment" :loading="extendForm.loading_confirmPayment") 确认付款
 
-                
-          v-bottom-sheet.ml-4(v-model="refundForm.confirm")
+          v-bottom-sheet.ml-4(v-if="['BOOKED', 'PENDING'].includes(booking.status)" v-model="refundForm.confirm")
             template(v-slot:activator="{on}")
               v-btn.self-end(color="error" dark v-on="on") 退款并取消
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="refundBooking" :loading="refundForm.loading" ) 确认退款
+          v-bottom-sheet.ml-4(v-model="refundManualForm.confirm")
+            v-sheet.px-10.flex.items-center(height="100px")
+              v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确认手动退款
+
+      v-data-table.mt-10.pt-4(
+           v-if="payablePayments.length > 0"
+          :headers="headers" 
+          :items="payablePayments" 
+          :items-per-page="20" 
+          hide-default-footer )
+          template(v-slot:item.action="{item}")
+            a(small @click="handleRefundManual(item)") 手动退款
+          template(v-slot:item.amount="{item}")
+            p {{Math.abs(item.amount)}}
         
 
  </template>
@@ -67,11 +86,27 @@
 <script>
 import { getBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { getUser } from "../../services/user";
-import { updatePayment } from "../../services/payment";
+import { updatePayment, sendPaymentToSunmi } from "../../services/payment";
+import { sync } from "vuex-pathify";
 
 export default {
   data() {
     return {
+      headers: [
+        {
+          text: "订单",
+          align: "left",
+          value: "title",
+          sortable: false
+        },
+        {
+          text: "金额",
+          align: "left",
+          value: "amount",
+          sortable: false
+        },
+        { text: "操作", value: "action", sortable: false }
+      ],
       customer: {},
       finishForm: {
         confirm: false,
@@ -96,14 +131,20 @@ export default {
         confirm: false,
         loading: false
       },
+      refundManualForm: {
+        loading: false,
+        confirm: false,
+        payment: {}
+      },
       booking: {
         id: null,
         customer: {
           name: null,
           mobile: null
         },
+        payments: [],
         date: null,
-        hours: null,
+        hours: 0,
         membersCount: 0,
         socksCount: 0,
         remarks: null
@@ -119,6 +160,10 @@ export default {
     }
   },
   computed: {
+    configs: sync("configs"),
+    payablePayments() {
+      return this.booking.payments.filter(i => i.amount < 0 && !i.paid);
+    },
     extendPaymentGateway() {
       if (this.customer.credit >= this.extendForm.price) {
         return "credit";
@@ -176,6 +221,18 @@ export default {
       this.refundForm.loading = false;
       this.refundForm.confirm = false;
       await this.getBooking({ id });
+    },
+    async handleRefundManual(item) {
+      this.refundManualForm.payment = item;
+      this.refundManualForm.confirm = true;
+    },
+    async refundBookingManual() {
+      const { id } = this.refundManualForm.payment;
+      this.refundManualForm.loading = true;
+      const res = await updatePayment({ id, paid: true });
+      this.refundManualForm.loading = false;
+      this.refundManualForm.confirm = false;
+      this.getBooking({ id: this.booking.id });
     },
     async updateExtendPrice() {
       if (this.extendForm.loading_price || !this.booking.id) return;

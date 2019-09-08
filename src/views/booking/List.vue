@@ -24,7 +24,13 @@
           :loading="loading")
           template(v-slot:item.action="{item}")
             a(small @click="editBooking(item)") 编辑
+          template(v-slot:item.status="{item}")
+            p {{configs.bookingStatusMap[item.status]}}
+          template(v-slot:item.type="{item}")
+            p {{configs.bookingTypeMap[item.type]}}
         v-pagination(v-model="page" :length="total" total-visible="7")
+         
+            
 
         
 </template>
@@ -69,6 +75,11 @@ export default {
           sortable: false
         },
         {
+          text: "日期",
+          align: "left",
+          value: "date"
+        },
+        {
           text: "小时",
           align: "left",
           value: "hours"
@@ -89,7 +100,7 @@ export default {
           align: "left",
           value: "membersCount"
         },
-        { text: "Actions", value: "action", sortable: false }
+        { text: "操作", value: "action", sortable: false }
       ],
       items: [],
       loading: true,
