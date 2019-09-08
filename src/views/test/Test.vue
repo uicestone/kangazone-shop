@@ -25,6 +25,7 @@
       p(v-if="['refund','consume'].includes(type)") {{msg}}
 
       v-text-field(v-if="['print'].includes(type)" label="venderId" v-model="printForm.venderId" clearable)
+      v-select(label="编码" v-model="printForm.encodingType" :items="printForm.encoding" clearable)
       v-btn.mt-5(v-if="['print'].includes(type)" block color="success" @click="print") 打印
       v-btn.mt-5(v-if="['print'].includes(type)" block color="warning" @click="getUSBDevices") 获取usb设备
       p(v-if="['print'].includes(type)") {{printForm.msg}}
@@ -51,7 +52,41 @@ export default {
       type: "consume",
       printForm: {
         venderId: "26728",
-        msg: ""
+        msg: "",
+        encodingType: "cp862",
+        encoding: [
+          "cp437",
+          "cp737",
+          "cp850",
+          "cp775",
+          "cp852",
+          "cp855",
+          "cp857",
+          "cp858",
+          "cp860",
+          "cp861",
+          "cp862",
+          "cp863",
+          "cp864",
+          "cp865",
+          "cp866",
+          "cp869",
+          "cp936",
+          "cp949",
+          "cp950",
+          "cp1252",
+          "iso88596",
+          "shiftjis",
+          "windows1250",
+          "windows1251",
+          "windows1252",
+          "windows1253",
+          "windows1254",
+          "windows1255",
+          "windows1256",
+          "windows1257",
+          "windows1258"
+        ]
       },
       form: {
         appType: "01",
@@ -86,7 +121,7 @@ export default {
     print() {
       let result = encoder
         .initialize()
-        .text("The quick brown fox jumps over the lazy dog")
+        .codepage("cp936")
         .newline()
         .line("我是一段中文")
         .right()
