@@ -5,9 +5,9 @@ export const findStores = () =>
     url: "/store"
   });
 
-export const getConfigs = () => axios.request({ url: "/api/config" });
+export const getConfigs = () => axios.request({ url: "/config" });
 
 export const getStats = () =>
   axios.request({
-    url: "/api/stats"
+    url: "/stats"
   });

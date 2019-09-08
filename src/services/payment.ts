@@ -87,7 +87,7 @@ export const sendPaymentToSunmi = (args: PaymentParams): Promise<PaymentResponse
 export const updatePayment = ({ id, paid }) => {
   const data = _.omitBy({ paid, status }, _.isNil);
 
-  return axios.request({ url: `/api/payment/${id}`, method: "PUT", data });
+  return axios.request({ url: `/payment/${id}`, method: "PUT", data });
 };
 
 export const openDrawer = () => {

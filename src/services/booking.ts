@@ -37,11 +37,11 @@ export interface QueryArgs {
 
 export const findBookings = (args: BookingFindArgs) => {
   const params = _.omitBy(args, _.isNil);
-  return axios.request<Booking[]>({ url: "/api/booking", params });
+  return axios.request<Booking[]>({ url: "/booking", params });
 };
 
 export const getBooking = ({ id }) => {
-  return axios.request<Booking>({ url: `/api/booking/${id}` });
+  return axios.request<Booking>({ url: `/booking/${id}` });
 };
 
 export const createBooking = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer }) => {
@@ -72,5 +72,5 @@ export const updateBooking = ({ id, bandIds, status, hours, paymentGateway, useC
   const data = _.omitBy({ bandIds, status, hours }, _.isNil);
   const params = _.omitBy({ paymentGateway, useCredit }, _.isNil);
 
-  return axios.request<Booking>({ method: "PUT", url: `/api/booking/${id}`, data, params });
+  return axios.request<Booking>({ method: "PUT", url: `/booking/${id}`, data, params });
 };
