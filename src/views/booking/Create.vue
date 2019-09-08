@@ -3,10 +3,10 @@
     v-app-bar(color="secondary")
       v-app-bar-nav-icon(@click="handleBack")
         v-icon mdi-chevron-left
-      v-toolbar-title 创建订单
+      v-toolbar-title 创建/选择预约
     v-container.flex.justify-center.items-center.h-content
-      v-card(width="600px")
-        div.p-10
+      v-card.py-3.px-10.mx-10(width="600px")
+        div
           v-form(ref="searchUserForm" v-if="step == 'searchUser'")
             v-autocomplete(
               label="手机号" 
@@ -22,27 +22,27 @@
               required)
             div.flex.justify-center.align-center
               v-btn(color="primary" dark v-if="!userValid" @click="goCreateUser") 创建用户
-              v-btn(color="primary"  v-if="userValid" @click="createBookingFromSearchUser") 创建预约
-              v-overflow-btn.ml-4.w-64(
+              v-overflow-btn.mr-4(
                 type="number"
                 :loading="searchUserForm.bookings_loading" 
                 :items="searchUserForm.bookings" 
-                label="签到" 
+                label="已预约签到" 
                 dense
-                color="success"
+                color="primary"
                 v-if="userValid"
                 :item-text="getDropDownText"
                 :item-value="i => i"
                 @change="goCheckIn"
-                ) 
+              ) 
+              v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
           v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'")
             v-text-field(label="手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number")
-            v-text-field(label="用户名" v-model="createUserForm.username" required :rules="[v => !!v || '请输入用户名']" clearable)
-            v-radio-group(row v-model="createUserForm.gender" required)
+            v-text-field(label="用户名" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable)
+            v-radio-group(row v-model="createUserForm.gender")
               v-radio(label="男" value="1")
               v-radio(label="女" value="2")
             div
-              v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 创建预约
+              v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 保存用户并创建预约
           v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'")
             v-text-field(label="手机号" v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
             v-menu
@@ -73,10 +73,10 @@
               v-btn(color="primary" :disabled="!createBookingForm.valid || createBookingForm.price =='0'"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
               v-bottom-sheet(v-model="createBookingForm.confirm" persistent)
                 v-sheet.px-10.flex.items-center(height="100px")
-                  v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认付款
+                  v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认收款完成
 
           v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'")
-            v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="'手环号'+index" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请输入手环号']")
+            v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
             v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环
 
 </template>

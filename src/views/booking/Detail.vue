@@ -1,64 +1,65 @@
 <template lang="pug">
   .booking-detail
-    v-app-bar( color="#6A76AB" dark)
+    v-app-bar(color="secondary")
         v-app-bar-nav-icon(@click="$router.go(-1)")
           v-icon mdi-chevron-left
-        v-toolbar-title 创建订单
+        v-toolbar-title 预约详情
     v-container
-      v-card.p-4
-        v-card-title 订单详情
-        v-list-item
-          v-list-item-content id
-          v-list-item-action {{booking.id}}
-        v-list-item
-          v-list-item-content 状态
-          v-list-item-action {{configs.bookingStatusMap[booking.status]}}
-        v-list-item
-          v-list-item-content 类型
-          v-list-item-action {{configs.bookingTypeMap[booking.type]}}
-        v-list-item
-          v-list-item-content 昵称
-          v-list-item-action {{booking.customer.name}}
-        v-list-item
-          v-list-item-content 手机号
-          v-list-item-action {{booking.customer.mobile}}
-        v-list-item
-          v-list-item-content 日期
-          v-list-item-action {{booking.date}}
-        v-list-item
-          v-list-item-content 时间
-          v-list-item-action {{booking.hours}}
-        v-list-item
-          v-list-item-content 人数
-          v-list-item-action {{booking.membersCount}}
-        v-list-item
-          v-list-item-content 袜子数
-          v-list-item-action {{booking.socksCount}}
-        v-list-item
-          v-list-item-content 备注
-          v-list-item-action {{booking.remarks}}
-        v-card-actions
-          v-bottom-sheet(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="finishForm.confirm")
-            template(v-slot:activator="{on}")
-              v-btn(color="success" dark v-on="on") 完成订单
-            v-sheet.px-10.flex.items-center(height="100px")
-              v-btn.w-full(block color="primary"  @click="finishBooking" :loading="finishForm.loading" ) 确认完成
+      v-card.p-3.flex
+        div.p-4(style="flex:3;border-right:1px solid grey")
+          v-list-item
+            v-list-item-content 手机号
+            v-list-item-action {{booking.customer.mobile}}
+          v-list-item
+            v-list-item-content 昵称
+            v-list-item-action {{booking.customer.name}}
+          v-list-item
+            v-list-item-content 日期
+            v-list-item-action {{booking.date}}
+          v-list-item
+            v-list-item-content 人数
+            v-list-item-action {{booking.membersCount}}
+          v-list-item
+            v-list-item-content 入场时间
+            v-list-item-action {{booking.checkInAt}}
+        div.p-4(style="flex:2")
+          v-list-item
+            v-list-item-content 类型
+            v-list-item-action {{configs.bookingTypeMap[booking.type]}}
+          v-list-item
+            v-list-item-content 状态
+            v-list-item-action {{configs.bookingStatusMap[booking.status]}}
+          v-list-item
+            v-list-item-content 时长
+            v-list-item-action {{booking.hours}} 小时
+          v-list-item
+            v-list-item-content 袜子数
+            v-list-item-action {{booking.socksCount}}
+          v-list-item
+            v-list-item-content 备注
+            v-list-item-action {{booking.remarks}}
+        v-card-actions(style="flex:1;min-width:0")
+          //- v-bottom-sheet(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="finishForm.confirm")
+          //-   template(v-slot:activator="{on}")
+          //-     v-btn(color="success" dark v-on="on") 完成订单
+          //-   v-sheet.px-10.flex.items-center(height="100px")
+          //-     v-btn.w-full(block color="primary"  @click="finishBooking" :loading="finishForm.loading" ) 确认完成
 
           v-bottom-sheet.ml-4(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
             template(v-slot:activator="{on}")
-              v-btn(color="cyan" dark v-on="on") 延长时间
+              v-btn(color="primary" dark v-on="on" style="height:3rem;width:6rem") 延长时间
             v-sheet.p-10.items-center(height="320px")
               v-form(v-model="extendForm.valid")
                 p.text-3xl.text-center ￥{{extendForm.price}}
                 v-btn-toggle.my-4(v-model="extendForm.form.hours")
                   v-btn.px-10(:value=1 text) 1小时
                   v-btn.px-10(:value=2 text v-if="booking.hours < 2") 2小时
-                v-bottom-navigation(v-model="extendForm.form.paymentGateway" grow icons-and-text)
+                v-bottom-navigation(v-model="extendForm.form.paymentGateway" grow icons-and-text style="box-shadow:none")
                   v-btn(v-for="item in extendForm.paymentGateways" :key="item.value")
                     span {{item.label}}
                     v-icon {{item.icon}}
               v-btn.mt-5.w-full(v-if="!extendForm.confirm_payment" block color="primary"  @click="extendBooking" :loading="extendForm.loading || extendForm.loading_price" :disabled="extendForm.price == 0") 确认延长
-              v-btn.mt-5.w-full(v-if="extendForm.confirm_payment" block color="success"  @click="comfirmPayment" :loading="extendForm.loading_confirmPayment") 确认付款
+              v-btn.mt-5.w-full(v-if="extendForm.confirm_payment" block color="success"  @click="comfirmPayment" :loading="extendForm.loading_confirmPayment") 确认收款完成
 
           v-bottom-sheet.ml-4(v-if="['BOOKED', 'PENDING'].includes(booking.status)" v-model="refundForm.confirm")
             template(v-slot:activator="{on}")
