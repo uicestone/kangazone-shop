@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    v-app-bar(color="primary")
+    v-app-bar(color="secondary")
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
       v-toolbar-title 概况
     v-navigation-drawer(v-model="drawer" bottom absolute height="auto")
@@ -24,7 +24,7 @@
         v-card(@click="goBookingList({due: true})" :elevation="5")
           div.number 12 
           div.label 即将超时 
-        v-card.action.secondary(@click="goBookingCreate" :elevation="5")
+        v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 非预约
       div.flex.text.justify-between.items-center.pt-4.align-stretch
         v-card(@click="goBookingList({date: today})" :elevation="5")
@@ -33,7 +33,7 @@
         v-card(:elevation="5")
           div.number ￥12345 
           div.label 当日流水 
-        v-card.action.secondary(@click="goBookingCreate" :elevation="5")
+        v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 预约入场
     
 

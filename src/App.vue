@@ -53,4 +53,7 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+.h-content {
+  height: calc(100vh - 56px);
+}
 </style>

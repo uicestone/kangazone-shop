@@ -1,10 +1,10 @@
 <template lang="pug">
   div
-    v-app-bar( color="#6A76AB" dark)
+    v-app-bar(color="secondary")
       v-app-bar-nav-icon(@click="$router.go(-1)")
         v-icon mdi-chevron-left
       v-toolbar-title 创建订单
-    v-container.flex.justify-center.items-center.h-screen
+    v-container.flex.justify-center.items-center.h-content
       v-card
         v-toolbar(flat color="grey lighten-4" dense v-if="step !== 'searchUser'")
           v-btn(icon @click="step = 'searchUser'")
@@ -24,7 +24,7 @@
               :item-value="item => item"
               required)
             div.flex.justify-center.align-center
-              v-btn(color="blue-grey" dark v-if="!userValid" @click="goCreateUser") 创建用户
+              v-btn(color="primary" dark v-if="!userValid" @click="goCreateUser") 创建用户
               v-btn(color="primary"  v-if="userValid" @click="createBookingFromSearchUser") 创建预约
               v-overflow-btn.ml-4.w-64(
                 :loading="searchUserForm.bookings_loading" 
@@ -67,7 +67,7 @@
 
           v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'")
             v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="'手环号'+index" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请输入手环号']")
-            v-btn(:disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环
+            v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环
 
 </template>
 
