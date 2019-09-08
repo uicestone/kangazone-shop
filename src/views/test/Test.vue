@@ -25,7 +25,6 @@
       p(v-if="['refund','consume'].includes(type)") {{msg}}
 
       v-text-field(v-if="['print'].includes(type)" label="设备名称" v-model="printForm.name" clearable)
-      v-btn.mt-5(v-if="['print'].includes(type)" block color="primary" @click="connectPrinter") 连接打印机
       v-btn.mt-5(v-if="['print'].includes(type)" block color="success" @click="print") 打印
       v-btn.mt-5(v-if="['print'].includes(type)" block color="warning" @click="getUSBDevices") 获取usb设备
       p(v-if="['print'].includes(type)") {{printForm.msg}}
@@ -80,9 +79,6 @@ export default {
   created() {},
   mounted() {},
   methods: {
-    connectPrinter() {
-      $App.jsGetDevice(this.printForm.name);
-    },
     getUSBDevices() {
       const res = $App.jsGetAllUSBDevices();
       this.printForm.msg = res;
@@ -99,7 +95,8 @@ export default {
         .encode();
 
       result = Buffer.from(result).toString("hex"); //?
-      $App.jsPrint(result);
+      console.log(result);
+      $App.jsPrint("26728", result);
     },
     selectType(val) {
       if (val == "refund") {
