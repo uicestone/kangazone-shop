@@ -86,7 +86,6 @@ export default {
     print() {
       let result = encoder
         .initialize()
-        .codepage("cp936")
         .text("The quick brown fox jumps over the lazy dog")
         .newline()
         .line("我是一段中文")
