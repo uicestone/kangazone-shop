@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    v-app-bar( color="#6A76AB" dark)
+    v-app-bar(color="primary" dark)
       v-app-bar-nav-icon(@click="$router.go(-1)")
         v-icon mdi-chevron-left
       v-toolbar-title 订单列表
@@ -10,7 +10,7 @@
           div(class="flex flex-col md:flex-row")
             v-select(label="类型" v-model="searchForm.type" :items="configs.bookingTypes" item-text="label" item-value="value" clearable)
             v-select(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
-            v-text-field(label="关键词" v-model="searchForm.customerKeyword" clearable)
+            v-text-field(label="搜索用户（手机号匹配）" v-model="searchForm.customerKeyword" clearable)
           div
             v-btn(@click="getBookings") 搜索
         
@@ -50,19 +50,13 @@ export default {
         due: null,
         date: null,
         status: null,
-        type: null
+        type: "play"
       },
       editBookingItem: {
         customer: {}
       },
       showEditBooking: false,
       headers: [
-        {
-          text: "昵称",
-          align: "left",
-          value: "customer.name",
-          sortable: false
-        },
         {
           text: "手机号",
           align: "left",
@@ -90,11 +84,11 @@ export default {
           value: "type",
           sortable: false
         },
-        {
-          text: "袜子数",
-          align: "left",
-          value: "socksCount"
-        },
+        // {
+        //   text: "袜子数",
+        //   align: "left",
+        //   value: "socksCount"
+        // },
         {
           text: "人数",
           align: "left",
