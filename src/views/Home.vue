@@ -1,6 +1,6 @@
 <template lang="pug">
-  div
-    v-app-bar(color="secondary")
+  div.flex.flex-column
+    v-app-bar.flex-none(color="secondary")
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
       v-toolbar-title 概况
     v-navigation-drawer(v-model="drawer" bottom absolute height="auto")
@@ -16,8 +16,8 @@
           v-icon mdi-logout
           span 退出登录
 
-    v-container.flex.flex-column.stats(style="height:calc(100vh - 56px)")
-      div.flex.text.justify-between.items-center.align-stretch
+    v-container.flex.flex-column.stats.flex-1
+      div.flex.text.justify-between.items-center.align-stretch.flex-1
         v-card(@click="goBookingList({status: 'IN_SERVICE'})" :elevation="5")
           div.number {{ stats.checkedInCount }}
           div.label 场内人数
@@ -26,7 +26,7 @@
           div.label 即将超时 
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 非预约
-      div.flex.text.justify-between.items-center.pt-4.align-stretch
+      div.flex.text.justify-between.items-center.pt-4.align-stretch.flex-1
         v-card(@click="goBookingList({date: today})" :elevation="5")
           div.number {{ stats.todayCount }}
           div.label 当日人数
