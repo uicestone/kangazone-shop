@@ -69,6 +69,9 @@
           v-bottom-sheet.ml-4(v-model="refundManualForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确认手动退款
+          v-bottom-sheet.ml-4(v-model="payManuallForm.confirm")
+            v-sheet.px-10.flex.items-center(height="100px")
+              v-btn.w-full(block color="error"  @click="payBookingManual" :loading="payManuallForm.loading" ) 确认手动收款
       v-card.p-3.mt-5(v-if="['BOOKED'].includes(booking.status)" )
         v-form( v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent )
           v-text-field(v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
@@ -81,7 +84,9 @@
           :items-per-page="20" 
           hide-default-footer )
           template(v-slot:item.action="{item}")
-            a(small @click="handleRefundManual(item)") 手动退款
+            a(small v-if="item.amount<0" @click="handleRefundManual(item)") 手动退款
+            a(small v-if="item.amount>0" @click="handlePayManual(item)") 手动收款
+
           template(v-slot:item.amount="{item}")
             p {{Math.abs(item.amount)}}
         
@@ -91,7 +96,7 @@
 <script>
 import { getBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { getUser } from "../../services/user";
-import { updatePayment, sendPaymentToSunmi } from "../../services/payment";
+import { updatePayment, sendPaymentToSunmi, openDrawer } from "../../services/payment";
 import { sync } from "vuex-pathify";
 
 export default {
@@ -149,6 +154,11 @@ export default {
         confirm: false,
         payment: {}
       },
+      payManuallForm: {
+        loading: false,
+        confirm: false,
+        payment: {}
+      },
       booking: {
         id: null,
         customer: {
@@ -167,16 +177,16 @@ export default {
   watch: {
     "extendForm.form": {
       handler() {
-        if (!this.extendForm.confirm) return;
         this.updateExtendPrice();
       },
-      deep: true
+      deep: true,
+      immediate: true
     }
   },
   computed: {
     configs: sync("configs"),
     payablePayments() {
-      return this.booking.payments.filter(i => i.amount < 0 && !i.paid);
+      return this.booking.payments.filter(i => !i.paid);
     },
     extendPaymentGateway() {
       if (this.customer.credit >= this.extendForm.price) {
@@ -185,6 +195,7 @@ export default {
       return this.extendForm.paymentGateways[this.extendForm.form.paymentGateway].value;
     },
     extendHours() {
+      console.log(this.extendForm.form.hours, this.booking.hours);
       return Number(this.extendForm.form.hours) + Number(this.booking.hours);
     }
   },
@@ -193,6 +204,15 @@ export default {
     this.getBooking({ id });
   },
   methods: {
+    async handleCheckIn() {
+      this.checkInForm.loading = true;
+      const { bandIds } = this.checkInForm;
+      const { id } = this.booking;
+      const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
+      const booking = res.data;
+      this.checkInForm.loading = false;
+      this.getBooking({ id });
+    },
     async finishBooking() {
       const { id } = this.booking;
       this.finishForm.loading = true;
@@ -223,7 +243,7 @@ export default {
           break;
         case "cash":
         case "card":
-          $App.jsOpenDrawer();
+          openDrawer();
           this.extendForm.confirm_payment = true;
           break;
         case "credit":
@@ -251,8 +271,20 @@ export default {
       this.refundManualForm.confirm = false;
       this.getBooking({ id: this.booking.id });
     },
+    async handlePayManual(item) {
+      this.payManuallForm.payment = item;
+      this.payManuallForm.confirm = true;
+    },
+    async payBookingManual() {
+      const { id } = this.payManuallForm.payment;
+      this.payManuallForm.loading = true;
+      const res = await updatePayment({ id, paid: true });
+      this.payManuallForm.loading = false;
+      this.payManuallForm.confirm = false;
+      this.getBooking({ id: this.booking.id });
+    },
     async updateExtendPrice() {
-      if (this.extendForm.loading_price || !this.booking.id) return;
+      if (this.extendForm.loading_price || !this.booking.id || this.booking.hours >= 3) return;
       this.extendForm.loading_price = true;
       const { extendPaymentGateway: paymentGateway, extendHours: hours } = this;
 
@@ -268,6 +300,7 @@ export default {
       } = res.data;
       const res1 = await getUser({ id: customerId });
       this.customer = res1.data;
+      this.updateExtendPrice();
     },
     async comfirmPayment() {
       this.extendForm.loading_confirmPayment = true;

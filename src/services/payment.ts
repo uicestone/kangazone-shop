@@ -92,5 +92,8 @@ export const updatePayment = ({ id, paid }) => {
 
 export const openDrawer = () => {
   //@ts-ignore
-  $App.jsOpenDrawer();
+  if (window.$App) {
+    //@ts-ignore
+    window.$App.jsOpenDrawer();
+  }
 };

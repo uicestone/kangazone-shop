@@ -91,7 +91,8 @@ import { sync } from "vuex-pathify";
 import { findBookings, createBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { moment } from "../../utils/moment";
 import { config } from "../../../config";
-import { sendPaymentToSunmi, updatePayment } from "../../services/payment";
+import { sendPaymentToSunmi, updatePayment, openDrawer } from "../../services/payment";
+const { $App } = window;
 
 export default {
   data() {
@@ -249,6 +250,8 @@ export default {
         socksCount,
         useCredit: true,
         paymentGateway: paymentGateway == "credit" ? null : paymentGateway
+      }).catch(error => {
+        this.createBookingForm.loading_createBooking = false;
       });
       this.createBookingForm.loading_createBooking = false;
       this.createBookingForm.newBooking = res.data;
@@ -265,7 +268,7 @@ export default {
           return this.goCheckIn(this.createBookingForm.newBooking);
         case "cash":
         case "card":
-          $App.jsOpenDrawer();
+          openDrawer();
           this.createBookingForm.confirm = true;
           break;
         case "credit":
