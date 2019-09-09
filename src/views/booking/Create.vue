@@ -7,7 +7,7 @@
     v-container.flex.justify-center.items-center.flex-1
       v-card.py-4.px-7
         div
-          v-form(ref="searchUserForm" v-if="step == 'searchUser'")
+          v-form(ref="searchUserForm" v-if="step == 'searchUser'" @submit.native.prevent)
             v-autocomplete(
               label="手机号" 
               clearable
@@ -35,7 +35,7 @@
                 @change="goCheckIn"
               ) 
               v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
-          v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'")
+          v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'" @submit.native.prevent)
             v-text-field(label="手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number")
             v-text-field(label="用户名" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable)
             v-radio-group(row v-model="createUserForm.gender")
@@ -43,7 +43,7 @@
               v-radio(label="女" value="2")
             div
               v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 保存用户并创建预约
-          v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'")
+          v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'" @submit.native.prevent)
             div.flex
               div(style="flex:2")
                 v-text-field(label="手机号" v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
@@ -78,7 +78,7 @@
                 v-sheet.px-10.flex.items-center(height="100px")
                   v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认收款完成
 
-          v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'")
+          v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'" @submit.native.prevent)
             v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
             v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环
 
@@ -141,6 +141,7 @@ export default {
         newBooking: {}
       },
       checkInForm: {
+        valid: false,
         loading: false,
         booking: {
           membersCount: 1
@@ -264,6 +265,7 @@ export default {
           return this.goCheckIn(this.createBookingForm.newBooking);
         case "cash":
         case "card":
+          $App.jsOpenDrawer();
           this.createBookingForm.confirm = true;
           break;
         case "credit":

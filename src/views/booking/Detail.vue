@@ -49,7 +49,7 @@
             template(v-slot:activator="{on}")
               v-btn(color="primary" dark v-on="on" style="height:3rem;width:6rem") 延长时间
             v-sheet.p-10.items-center(height="320px")
-              v-form(v-model="extendForm.valid")
+              v-form(v-model="extendForm.valid" @submit.native.prevent)
                 p.text-3xl.text-center ￥{{extendForm.price}}
                 v-btn-toggle.my-4(v-model="extendForm.form.hours")
                   v-btn.px-10(:value=1 text) 1小时
@@ -69,6 +69,10 @@
           v-bottom-sheet.ml-4(v-model="refundManualForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确认手动退款
+      v-card.p-3.mt-5(v-if="['BOOKED'].includes(booking.status)" )
+        v-form( v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent )
+          v-text-field(v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
+          v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环
 
       v-data-table.mt-10.pt-4(
            v-if="payablePayments.length > 0"
@@ -113,6 +117,14 @@ export default {
         confirm: false,
         loading: false
       },
+      checkInForm: {
+        valid: false,
+        loading: false,
+        booking: {
+          membersCount: 1
+        },
+        bandIds: []
+      },
       extendForm: {
         confirm: false,
         loading: false,
@@ -155,6 +167,7 @@ export default {
   watch: {
     "extendForm.form": {
       handler() {
+        if (!this.extendForm.confirm) return;
         this.updateExtendPrice();
       },
       deep: true
@@ -210,6 +223,9 @@ export default {
           break;
         case "cash":
         case "card":
+          $App.jsOpenDrawer();
+          this.extendForm.confirm_payment = true;
+          break;
         case "credit":
           this.extendForm.confirm_payment = true;
           break;
@@ -252,7 +268,6 @@ export default {
       } = res.data;
       const res1 = await getUser({ id: customerId });
       this.customer = res1.data;
-      await this.updateExtendPrice();
     },
     async comfirmPayment() {
       this.extendForm.loading_confirmPayment = true;
