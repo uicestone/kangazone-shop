@@ -54,8 +54,8 @@ export default {
       printForm: {
         venderId: "26728",
         msg: "",
-        encodingType: "cp860",
-        content: "1234abcd",
+        encodingType: "cp936",
+        content: "1b401b74ff1c26b2e2cad4b4f2d3a1616263641c2e0a0d",
         encoding: [
           "cp437",
           "cp737",
@@ -110,7 +110,7 @@ export default {
           remarks: null
         }
       },
-      msg: "哈哈"
+      msg: "摆脱引力，感受飞翔"
     };
   },
   created() {},
@@ -127,7 +127,8 @@ export default {
         .line(this.printForm.content)
         .encode();
       result = Buffer.from(result).toString("hex"); //?
-      $App.jsPrint(this.printForm.venderId, result);
+      // $App.jsPrint(this.printForm.venderId, result);
+      $App.jsPrint(this.printForm.venderId, this.printForm.content);
     },
     selectType(val) {
       if (val == "refund") {

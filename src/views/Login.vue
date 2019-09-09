@@ -1,5 +1,6 @@
 <template lang="pug">
-  v-container
+  v-container.p-0
+    a.test-link(@click="goTest") 调试
     div.flex.justify-center.items-center.h-screen
       v-card.p-10
         v-form.w-64(v-model="form.valid" ref="form" @submit.native.prevent)
@@ -34,10 +35,20 @@ export default {
       this.token = token;
       this.user = user;
       this.$router.replace("/");
+    },
+    goTest() {
+      this.$router.push("/test");
     }
   }
 };
 </script>
 
-<style>
+<style scoped>
+.test-link {
+  position: absolute;
+  right: 2vw;
+  bottom: 2vw;
+  color: #444;
+  font-size: 50%;
+}
 </style>
