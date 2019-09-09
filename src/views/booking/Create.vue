@@ -1,10 +1,10 @@
 <template lang="pug">
-  div
-    v-app-bar(color="secondary")
+  div.flex.flex-column
+    v-app-bar.flex-none(color="secondary")
       v-app-bar-nav-icon(@click="handleBack")
         v-icon mdi-chevron-left
       v-toolbar-title 创建/选择预约
-    v-container.flex.justify-center.items-center.h-content
+    v-container.flex.justify-center.items-center.flex-1
       v-card.py-4.px-7
         div
           v-form(ref="searchUserForm" v-if="step == 'searchUser'")
