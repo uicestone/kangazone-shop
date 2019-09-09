@@ -30,7 +30,7 @@ export default {
         this.$route.go(-1);
         return 0;
       }
-      jsBridageBus.emit("javaCall", JSON.parse(data));
+      jsBridageBus.emit("javaCall", data);
       return "js调用成功";
     },
     async getAuthUser() {
