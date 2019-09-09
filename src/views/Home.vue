@@ -94,7 +94,7 @@ export default {
   flex-direction column
   justify-content center
   width 32%
-  height 100%
+  height auto
   .number
     display flex
     align-items center
@@ -107,9 +107,6 @@ export default {
     font-weight normal
     flex 1
   &.action
-    border-top 50% solid transparent
-    border-bottom 50% solid transparent
-    border-left 50% solid green
     .v-card__actions
       justify-content center
       font-size 2rem
