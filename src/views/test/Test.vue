@@ -31,9 +31,8 @@
       v-btn.mt-5(v-if="['print'].includes(type)" block color="warning" @click="getUSBDevices") 获取usb设备
       p(v-if="['print'].includes(type)") {{printForm.msg}}
 
-      
-
-
+      v-text-field(v-if="['redirect'].includes(type)" label="网址" v-model="redirectUrl" clearable)
+      v-btn.mt-5(v-if="['redirect'].includes(type)" block color="success" @click="redirect") 跳转
 
 </template>
 
@@ -49,13 +48,13 @@ export default {
   name: "Test",
   data() {
     return {
-      items: [{ value: "consume", label: "消费" }, { value: "refund", label: "退款" }, { value: "print", label: "打印" }],
+      items: [{ value: "consume", label: "消费" }, { value: "refund", label: "退款" }, { value: "print", label: "打印" }, { value: "redirect", label: "跳转" }],
       type: "consume",
       printForm: {
         venderId: "26728",
         msg: "",
         encodingType: "cp936",
-        content: "1b401b74ff1c26b2e2cad4b4f2d3a1616263641c2e0a0d",
+        content: "测试打印ABCD",
         encoding: [
           "cp437",
           "cp737",
@@ -110,6 +109,7 @@ export default {
           remarks: null
         }
       },
+      redirectUrl: "http://",
       msg: "摆脱引力，感受飞翔"
     };
   },
@@ -126,9 +126,8 @@ export default {
         .codepage(this.printForm.encodingType)
         .line(this.printForm.content)
         .encode();
-      result = Buffer.from(result).toString("hex"); //?
-      // $App.jsPrint(this.printForm.venderId, result);
-      $App.jsPrint(this.printForm.venderId, this.printForm.content);
+      result = Buffer.from(result).toString("hex");
+      $App.jsPrint(this.printForm.venderId, result);
     },
     selectType(val) {
       if (val == "refund") {
@@ -145,6 +144,9 @@ export default {
     },
     debugDrawer() {
       $App.jsOpenDrawer();
+    },
+    redirect() {
+      window.location.href = this.redirectUrl;
     }
   }
 };
