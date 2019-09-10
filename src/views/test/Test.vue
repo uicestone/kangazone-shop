@@ -39,8 +39,10 @@
 <script>
 import { _ } from "../../utils/lodash";
 import { sendPaymentToSunmi } from "../../services/payment";
-import EscPosEncoder from "@xinghe/esc-pos-encoder";
+import EscPosEncoder from "esc-pos-encoder";
 import { Buffer } from "buffer/";
+import Vue from "vue";
+import moment from "moment";
 
 let encoder = new EscPosEncoder();
 
@@ -49,7 +51,7 @@ export default {
   data() {
     return {
       items: [{ value: "consume", label: "消费" }, { value: "refund", label: "退款" }, { value: "print", label: "打印" }, { value: "redirect", label: "跳转" }],
-      type: "consume",
+      type: "print",
       printForm: {
         venderId: "26728",
         msg: "",
@@ -110,11 +112,23 @@ export default {
         }
       },
       redirectUrl: "http://",
-      msg: "摆脱引力，感受飞翔"
+      msg: "摆脱引力，感受飞翔",
+      img: new Image()
     };
   },
   created() {},
-  mounted() {},
+  mounted() {
+    this.img.src = "http://192.168.3.2:8080/logo.png";
+    this.img.crossOrigin = "Anonymous";
+    this.img.onload = function() {
+      Vue.notify({
+        group: "test",
+        type: "info",
+        text: "image loaded",
+        duration: 2000
+      });
+    };
+  },
   methods: {
     getUSBDevices() {
       const res = $App.jsGetAllUSBDevices();
@@ -124,7 +138,47 @@ export default {
       let result = encoder
         .initialize()
         .codepage(this.printForm.encodingType)
-        .line(this.printForm.content)
+        .align("center")
+        .image(this.img, 384, 144, "threshold")
+        .line()
+        .align("left")
+        .line("打印时间：" + moment().format("YYYY-MM-DD HH:mm:ss"))
+        .line(
+          "出场时间：" +
+            moment()
+              .add(10, "minutes")
+              .add(2, "hours")
+              .format("YYYY-MM-DD HH:mm:ss")
+        )
+        .line("入场人数：1")
+        .line("手环号01：12345678901234")
+        .line("收银台号：砂之船01")
+        .line()
+        .line("付款明细：")
+        .line("-".repeat(31))
+        .line()
+        .line(" ".repeat(3) + "类型" + " ".repeat(7) + "数量" + " ".repeat(7) + "金额" + " ".repeat(2))
+        .line("自由游玩" + " ".repeat(3) + "1人x小时" + " ".repeat(4) + "￥158.00")
+        .line("自由游玩" + " ".repeat(3) + "1人x小时(半)" + " ".repeat(1) + "￥79.00")
+        .line()
+        .line("-".repeat(31))
+        .line()
+        .align("right")
+        .line(" ".repeat(3) + "合计：￥123.00" + " ".repeat(4))
+        .line(" ".repeat(3) + "余额支付：￥123.00" + " ".repeat(4))
+        .line(" ".repeat(3) + "扫码支付：￥123.00" + " ".repeat(4))
+        .line()
+        .line("-".repeat(31))
+        .align("center")
+        .qrcode("https://mp.weixin.qq.com/a/~vcK_feF35uOgreEAXvwxcw~~", 1, 8, "m")
+        .line()
+        .line("扫码使用微信小程序")
+        .line("充值预定延时更方便")
+        .align("right")
+        .line()
+        .line()
+        .line()
+        .line()
         .encode();
       result = Buffer.from(result).toString("hex");
       $App.jsPrint(this.printForm.venderId, result);
