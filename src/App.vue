@@ -27,7 +27,7 @@ export default {
       const data = JSON.parse(str);
       if (data.resultCode == "-1") {
         if (this.$route.path == "/") return 1;
-        this.$route.go(-1);
+        this.$router.go(-1);
         return 0;
       }
       jsBridageBus.emit("javaCall", data);
