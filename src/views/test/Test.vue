@@ -39,12 +39,13 @@
 <script>
 import { _ } from "../../utils/lodash";
 import { sendPaymentToSunmi } from "../../services/payment";
-import EscPosEncoder from "esc-pos-encoder";
+// import EscPosEncoder from "esc-pos-encoder";
 import { Buffer } from "buffer/";
 import Vue from "vue";
 import moment from "moment";
+import { getBookingReceiptData } from "../../services";
 
-let encoder = new EscPosEncoder();
+// let encoder = new EscPosEncoder();
 
 export default {
   name: "Test",
@@ -134,8 +135,9 @@ export default {
       const res = $App.jsGetAllUSBDevices();
       this.printForm.msg = res;
     },
-    print() {
-      let result = encoder
+    async print() {
+      const { data: receiptData } = await getBookingReceiptData({ id: "5d754000dd17bef3057aaf1f" });
+      /** let receiptData = encoder
         .initialize()
         .codepage(this.printForm.encodingType)
         .align("center")
@@ -180,8 +182,8 @@ export default {
         .line()
         .line()
         .encode();
-      result = Buffer.from(result).toString("hex");
-      $App.jsPrint(this.printForm.venderId, result);
+      receiptData = Buffer.from(receiptData).toString("hex"); */
+      $App.jsPrint(this.printForm.venderId, receiptData);
     },
     selectType(val) {
       if (val == "refund") {

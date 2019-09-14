@@ -74,3 +74,7 @@ export const updateBooking = ({ id, bandIds, status, hours, paymentGateway, useC
 
   return axios.request<Booking>({ method: "PUT", url: `/booking/${id}`, data, params });
 };
+
+export const getBookingReceiptData = ({ id }) => {
+  return axios.request<string>({ url: `/booking/${id}/receipt-data` });
+};
