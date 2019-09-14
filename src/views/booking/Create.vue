@@ -57,7 +57,7 @@
                     p.w-12 人数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px")
-                v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount" @change="i => createBookingForm.form.socksCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
+                v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount" @change="i => createBookingForm.form.socksCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 袜子数
                   template(v-slot:append)
