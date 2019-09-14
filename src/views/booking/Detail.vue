@@ -75,7 +75,7 @@
       v-card.p-3.mt-5(v-if="['BOOKED'].includes(booking.status)" )
         v-form( v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent )
           v-text-field(v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
-          v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环
+          v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
 
       v-data-table.mt-10.pt-4(
            v-if="payablePayments.length > 0"
