@@ -73,8 +73,12 @@
                 v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value")
                   span {{item.label}}
                   v-icon {{item.icon}}
-            div.flex.mt-2.justify-center.items-center
-              span.mr-5.text-orange-600.text-lg ￥{{createBookingForm.price}}
+            div
+              div.my-4
+                div.mr-5.text-lg.my-0
+                  span.text-orange-600 ￥{{createBookingForm.price}}元
+                  span.ml-2 (会员卡: {{creditPrice}}元 
+                  span 现场支付: {{createBookingForm.price-creditPrice}}元)
               v-btn(color="primary" :disabled="!createBookingForm.valid || createBookingForm.price =='0'"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
               v-bottom-sheet(v-model="createBookingForm.confirm" persistent)
                 v-sheet.px-10.flex.items-center(height="100px")
@@ -94,6 +98,7 @@ import { findBookings, createBooking, updateBooking, getBookingPrice } from "../
 import { moment } from "../../utils/moment";
 import { config } from "../../../config";
 import { sendPaymentToSunmi, updatePayment, openDrawer, bookingPrint } from "../../services/payment";
+import { _ } from "../../utils/lodash";
 const { $App } = window;
 
 export default {
@@ -125,11 +130,12 @@ export default {
           date: moment().format("YYYY-MM-DD"),
           hours: 1,
           membersCount: 1,
-          socksCount: 1,
+          socksCount: 0,
           paymentGateway: 0
         },
         user: {
-          mobile: ""
+          mobile: "",
+          credit: 0
         },
         price: 0,
         confirm: false,
@@ -165,6 +171,11 @@ export default {
     userValid() {
       if (!this.searchUserForm.user) return false;
       return this.searchUserForm.user.mobile;
+    },
+    creditPrice() {
+      const price = _.get(this, "createBookingForm.price", 0);
+      const credit = _.get(this, "createBookingForm.user.credit", 0);
+      return Math.min(price, credit);
     }
   },
   watch: {
@@ -262,8 +273,8 @@ export default {
         case "scan":
           const { payments, price, id: businessId } = res.data;
           const [payment] = payments;
-          const { id: orderId, attach: orderInfo } = payment;
-          const paymentRes = await sendPaymentToSunmi({ amount: String(price), orderId, businessId, orderInfo });
+          const { id: orderId, attach: orderInfo, amount } = payment;
+          const paymentRes = await sendPaymentToSunmi({ amount, orderId, businessId, orderInfo });
           if (paymentRes.resultCode !== "T00") {
             throw new Error(`${paymentRes.resultCode}: ${paymentRes.resultMsg}`);
           }
