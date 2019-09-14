@@ -96,7 +96,7 @@
 <script>
 import { getBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { getUser } from "../../services/user";
-import { updatePayment, sendPaymentToSunmi, openDrawer } from "../../services/payment";
+import { updatePayment, sendPaymentToSunmi, openDrawer, bookingPrint } from "../../services/payment";
 import { sync } from "vuex-pathify";
 
 export default {
@@ -204,12 +204,13 @@ export default {
     this.getBooking({ id });
   },
   methods: {
+    //绑定手环
     async handleCheckIn() {
       this.checkInForm.loading = true;
       const { bandIds } = this.checkInForm;
       const { id } = this.booking;
-      const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
-      const booking = res.data;
+      const res = await updateBooking({ id, bandIds });
+      await bookingPrint({ id });
       this.checkInForm.loading = false;
       this.getBooking({ id });
     },

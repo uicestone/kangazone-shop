@@ -93,7 +93,7 @@ import { sync } from "vuex-pathify";
 import { findBookings, createBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { moment } from "../../utils/moment";
 import { config } from "../../../config";
-import { sendPaymentToSunmi, updatePayment, openDrawer } from "../../services/payment";
+import { sendPaymentToSunmi, updatePayment, openDrawer, bookingPrint } from "../../services/payment";
 const { $App } = window;
 
 export default {
@@ -283,10 +283,10 @@ export default {
         booking: { id },
         bandIds
       } = this.checkInForm;
-      const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
-      const booking = res.data;
+      // const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
+      await bookingPrint({ id });
       this.checkInForm.loading = false;
-      this.$router.push({ name: "bookingDetail", params: { id: booking.id } });
+      this.$router.push({ name: "bookingDetail", params: { id } });
     },
     async comfirmPayment() {
       this.createBookingForm.loading_confirm = true;

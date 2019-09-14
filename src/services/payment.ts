@@ -1,8 +1,12 @@
 import { EventEmitter } from "events";
 import { axios } from "../utils/axios";
 import { _ } from "../utils/lodash";
+import { getBookingReceiptData } from "./booking";
+import { config } from "../../config";
 
 export const jsBridageBus = new EventEmitter();
+//@ts-ignore
+let $App = window.$App;
 
 export interface Payment {
   id: string;
@@ -85,6 +89,26 @@ export const sendPaymentToSunmi = (args: PaymentParams): Promise<PaymentResponse
       reject(error);
     }
   });
+export const refundPaymentToSunmi = (args: PaymentParams): Promise<PaymentResponse> =>
+  new Promise((resolve, reject) => {
+    try {
+      jsBridageBus.once("javaCall", data => {
+        resolve(data);
+      });
+      args.amount = (Number(args.amount) * 100).toString();
+      let params = {
+        appType: "01",
+        appId: "com.kangazone.shop",
+        transType: "09",
+        ...args
+      };
+      //@ts-ignore
+      $App.jsCallAndroid(JSON.stringify(params));
+    } catch (error) {
+      reject(error);
+    }
+  });
+
 export const updatePayment = ({ id, paid }) => {
   const data = _.omitBy({ paid, status }, _.isNil);
 
@@ -92,9 +116,10 @@ export const updatePayment = ({ id, paid }) => {
 };
 
 export const openDrawer = () => {
-  //@ts-ignore
-  if (window.$App) {
-    //@ts-ignore
-    window.$App.jsOpenDrawer();
-  }
+  $App.jsOpenDrawer();
+};
+
+export const bookingPrint = async ({ id }) => {
+  const { data: receiptData } = await getBookingReceiptData({ id });
+  $App.jsPrint(config.VENDERID, receiptData);
 };
