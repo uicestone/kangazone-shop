@@ -59,7 +59,23 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+button:focus {
+  outline: none !important;
+}
 .h-content {
   height: calc(100vh - 56px);
+}
+.v-toolbar__content {
+  height: 24px !important;
+  margin: 4px auto;
+}
+.v-toolbar__content .v-icon {
+  font-size: 1.25rem !important;
+  height: 1.25rem !important;
+}
+.v-toolbar__title {
+  font-size: 1rem !important;
+  opacity: 0.7;
+  padding-left: 0 !important;
 }
 </style>
