@@ -236,8 +236,8 @@ export default {
         case "scan":
           const { payments, price, id: businessId } = res.data;
           const [payment] = payments;
-          const { id: orderId, attach: orderInfo } = payment;
-          const paymentRes = await sendPaymentToSunmi({ amount: String(price), orderId, businessId, orderInfo });
+          const { id: orderId, attach: orderInfo, amount } = payment;
+          const paymentRes = await sendPaymentToSunmi({ amount, orderId, businessId, orderInfo });
           if (paymentRes.resultCode !== "T00") {
             throw new Error(`${paymentRes.resultCode}: ${paymentRes.resultMsg}`);
           }
