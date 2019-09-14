@@ -266,18 +266,20 @@ export default {
       this.refundManualForm.confirm = true;
     },
     async refundBookingManual() {
-      const { id, gateway, amount } = this.refundManualForm.payment;
+      const { id, gateway, amount, original } = this.refundManualForm.payment;
       this.refundManualForm.loading = true;
 
       if (gateway == "scan") {
-        await refundPaymentToSunmi({ amount, oriOrderId: id });
+        const sunmiRefundResult = await refundPaymentToSunmi({ amount, oriOrderId: original });
+        if (sunmiRefundResult.resultCode !== "T00") {
+          throw new Error("退款失败：" + JSON.stringify(sunmiRefundResult.resultMsg));
+        }
       }
 
       await updatePayment({ id, paid: true });
 
       this.refundManualForm.loading = false;
       this.refundManualForm.confirm = false;
-      this.refundManualForm.confirm = true;
       this.getBooking({ id: this.booking.id });
     },
     async handlePayManual(item) {
