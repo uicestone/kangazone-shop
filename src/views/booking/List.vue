@@ -4,31 +4,30 @@
       v-app-bar-nav-icon(@click="$router.go(-1)")
         v-icon mdi-chevron-left
       v-toolbar-title 订单列表
-    v-container
-      v-card.p-5
+    v-container.pb-1
+      v-card.px-3.py-1
         v-form
-          div(class="flex flex-col md:flex-row")
+          div(class="flex md:flex-row")
             v-select(label="类型" v-model="searchForm.type" :items="configs.bookingTypes" item-text="label" item-value="value" clearable)
             v-select(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
-            v-text-field(label="搜索用户（手机号匹配）" v-model="searchForm.customerKeyword" clearable)
-          div
-            v-btn(@click="getBookings") 搜索
-        
+            v-text-field(label="用户手机/卡号" v-model="searchForm.customerKeyword" clearable)        
 
-      div.pt-10
-        v-data-table.pt-10(
+      div.pt-2
+        v-data-table.p-3(
           :headers="headers" 
           :items="items" 
-          :items-per-page="20" 
+          :items-per-page="7" 
           hide-default-footer 
-          :loading="loading")
-          template(v-slot:item.action="{item}")
-            a(small @click="editBooking(item)") 编辑
+          :loading="loading"
+          loading-text="正在载入"
+          no-data-text="没有数据"
+          @click:row="editBooking"
+          )
           template(v-slot:item.status="{item}")
-            p {{configs.bookingStatusMap[item.status]}}
+            span {{configs.bookingStatusMap[item.status]}}
           template(v-slot:item.type="{item}")
-            p {{configs.bookingTypeMap[item.type]}}
-        v-pagination(v-model="page" :length="total" total-visible="7")
+            span {{configs.bookingTypeMap[item.type]}}
+        v-pagination(v-model="page" :length="totalPages" :total-visible="5")
          
             
 
@@ -52,6 +51,7 @@ export default {
         status: null,
         type: "play"
       },
+      searchDelayTimeout: null,
       editBookingItem: {
         customer: {}
       },
@@ -93,14 +93,13 @@ export default {
           text: "人数",
           align: "left",
           value: "membersCount"
-        },
-        { text: "操作", value: "action", sortable: false }
+        }
       ],
       items: [],
       loading: true,
       page: 1,
-      total: 10,
-      limit: 10
+      totalPages: null,
+      limit: 7
     };
   },
   computed: {
@@ -115,6 +114,15 @@ export default {
   watch: {
     page(val) {
       this.getBookings();
+    },
+    searchForm: {
+      deep: true,
+      handler() {
+        clearTimeout(this.searchDelayTimeout);
+        this.searchDelayTimeout = setTimeout(() => {
+          this.getBookings();
+        }, 500);
+      }
     }
   },
   methods: {
@@ -132,7 +140,7 @@ export default {
       const start = res.headers["items-start"];
       const total = res.headers["items-total"];
 
-      this.total = Math.round(total / limit);
+      this.totalPages = Math.ceil(total / limit);
 
       this.items = res.data;
       this.loading = false;
@@ -144,5 +152,16 @@ export default {
 };
 </script>
 
-<style>
+<style lang="stylus" scoped>
+.v-data-table
+  >>> td, >>> th
+    padding 6px 8px
+    height auto
+  >>> .v-data-table__progress > th
+    padding 0
+.v-pagination
+  >>> .v-pagination__item, >>> .v-pagination__navigation
+    height 24px
+  >>> .v-pagination__navigation .v-icon
+    font-size 1.5rem
 </style>
