@@ -61,7 +61,7 @@
               v-btn.mt-5.w-full(v-if="!extendForm.confirm_payment" block color="primary"  @click="extendBooking" :loading="extendForm.loading || extendForm.loading_price" :disabled="extendForm.price == 0") 确认延长
               v-btn.mt-5.w-full(v-if="extendForm.confirm_payment" block color="success"  @click="comfirmPayment" :loading="extendForm.loading_confirmPayment") 确认收款完成
 
-          v-bottom-sheet.ml-4(v-if="['BOOKED', 'PENDING'].includes(booking.status)" v-model="refundForm.confirm")
+          v-bottom-sheet.ml-4(v-if="['BOOKED'].includes(booking.status)" v-model="refundForm.confirm")
             template(v-slot:activator="{on}")
               v-btn.self-end(color="error" dark v-on="on") 退款并取消
             v-sheet.px-10.flex.items-center(height="100px")
@@ -268,11 +268,12 @@ export default {
     async refundBookingManual() {
       const { id, gateway, amount } = this.refundManualForm.payment;
       this.refundManualForm.loading = true;
-      if (gateway == "cash") {
-        await updatePayment({ id, paid: true });
-      } else if (gateway == "scan") {
+
+      if (gateway == "scan") {
         await refundPaymentToSunmi({ amount, oriOrderId: id });
       }
+
+      await updatePayment({ id, paid: true });
 
       this.refundManualForm.loading = false;
       this.refundManualForm.confirm = false;
