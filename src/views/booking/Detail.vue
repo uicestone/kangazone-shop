@@ -68,7 +68,7 @@
               v-btn.w-full(block color="error"  @click="refundBooking" :loading="refundForm.loading" ) 确认退款
           v-bottom-sheet.ml-4(v-model="refundManualForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
-              v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确认手动退款
+              v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确认退款
           v-bottom-sheet.ml-4(v-model="payManuallForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="payBookingManual" :loading="payManuallForm.loading" ) 确认手动收款
@@ -84,7 +84,8 @@
           :items-per-page="20" 
           hide-default-footer )
           template(v-slot:item.action="{item}")
-            a(small v-if="item.amount<0" @click="handleRefundManual(item)") 手动退款
+            a(small v-if="item.amount<0 && item.gateway == 'scan'"  @click="handleRefundManual(item)") 扫码退款
+            a(small v-if="item.amount<0 && item.gateway == 'cash'"  @click="handleRefundManual(item)") 手动退款
             a(small v-if="item.amount>0" @click="handlePayManual(item)") 手动收款
 
           template(v-slot:item.amount="{item}")
@@ -96,7 +97,7 @@
 <script>
 import { getBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { getUser } from "../../services/user";
-import { updatePayment, sendPaymentToSunmi, openDrawer, bookingPrint } from "../../services/payment";
+import { updatePayment, sendPaymentToSunmi, openDrawer, bookingPrint, refundPaymentToSunmi } from "../../services/payment";
 import { sync } from "vuex-pathify";
 
 export default {
@@ -265,11 +266,17 @@ export default {
       this.refundManualForm.confirm = true;
     },
     async refundBookingManual() {
-      const { id } = this.refundManualForm.payment;
+      const { id, gateway, amount } = this.refundManualForm.payment;
       this.refundManualForm.loading = true;
-      const res = await updatePayment({ id, paid: true });
+      if (gateway == "cash") {
+        await updatePayment({ id, paid: true });
+      } else if (gateway == "scan") {
+        await refundPaymentToSunmi({ amount, oriOrderId: id });
+      }
+
       this.refundManualForm.loading = false;
       this.refundManualForm.confirm = false;
+      this.refundManualForm.confirm = true;
       this.getBooking({ id: this.booking.id });
     },
     async handlePayManual(item) {

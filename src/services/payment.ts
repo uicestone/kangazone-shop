@@ -95,7 +95,7 @@ export const refundPaymentToSunmi = (args: PaymentParams): Promise<PaymentRespon
       jsBridageBus.once("javaCall", data => {
         resolve(data);
       });
-      args.amount = (Number(args.amount) * 100).toString();
+      args.amount = Math.round(Math.abs(Number(args.amount)) * 100).toString();
       let params = {
         appType: "01",
         appId: "com.kangazone.shop",
@@ -116,10 +116,22 @@ export const updatePayment = ({ id, paid }) => {
 };
 
 export const openDrawer = () => {
-  $App.jsOpenDrawer();
+  try {
+    $App.jsOpenDrawer();
+  } catch (error) {
+    if (config.IS_PROD) {
+      throw new Error(error);
+    }
+  }
 };
 
 export const bookingPrint = async ({ id }) => {
-  const { data: receiptData } = await getBookingReceiptData({ id });
-  $App.jsPrint(config.VENDERID, receiptData);
+  try {
+    const { data: receiptData } = await getBookingReceiptData({ id });
+    $App.jsPrint(config.VENDERID, receiptData);
+  } catch (error) {
+    if (config.IS_PROD) {
+      throw new Error(error);
+    }
+  }
 };

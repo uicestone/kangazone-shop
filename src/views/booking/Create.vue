@@ -283,7 +283,7 @@ export default {
         booking: { id },
         bandIds
       } = this.checkInForm;
-      // const res = await updateBooking({ id, bandIds, status: "IN_SERVICE" });
+      const res = await updateBooking({ id, bandIds });
       await bookingPrint({ id });
       this.checkInForm.loading = false;
       this.$router.push({ name: "bookingDetail", params: { id } });
