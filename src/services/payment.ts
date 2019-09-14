@@ -72,6 +72,7 @@ export const sendPaymentToSunmi = (args: PaymentParams): Promise<PaymentResponse
       jsBridageBus.once("javaCall", data => {
         resolve(data);
       });
+      args.amount = (Number(args.amount) * 100).toString();
       let params = {
         appType: "01",
         appId: "com.kangazone.shop",
