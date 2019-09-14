@@ -24,6 +24,7 @@
               v-btn(color="primary" dark v-if="!userValid" @click="goCreateUser") 创建用户
               v-overflow-btn.mr-4(
                 type="number"
+                v-show="searchUserForm.bookings.length > 0"
                 :loading="searchUserForm.bookings_loading" 
                 :items="searchUserForm.bookings" 
                 label="已预约签到" 
@@ -46,12 +47,13 @@
           v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'" @submit.native.prevent)
             div.flex
               div(style="flex:2")
-                v-text-field(label="手机号" v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
+                v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
+                v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit"  disabled)
                 v-menu
                   template(v-slot:activator="{on}")
-                    v-text-field(label="选择日期" v-on="on"  v-model="createBookingForm.form.date")
+                    v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date")
                   v-date-picker(v-model="createBookingForm.form.date")
-              div.pl-5(style="flex:3;width:70%")
+              div.pl-5.items-between.flex.flex-column(style="flex:3;width:70%")
                 v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 人数
@@ -62,7 +64,7 @@
                     p.w-12 袜子数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px")
-                v-btn-toggle.my-4(v-model="createBookingForm.form.hours" mandatory)
+                v-btn-toggle.mt-4(v-model="createBookingForm.form.hours" mandatory)
                   v-btn.px-10(:value=1 text) 1小时
                   v-btn.px-10(:value=2 text) 2小时
                   v-btn.px-10(:value=3 text) 3小时
@@ -104,7 +106,7 @@ export default {
           id: "",
           mobile: ""
         },
-        bookings: null,
+        bookings: [],
         bookings_loading: false,
         searchText: "",
         loading: false,

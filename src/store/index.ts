@@ -21,14 +21,16 @@ const state = {
       BOOKED: "已确认",
       IN_SERVICE: "已入场",
       FINISHED: "已结束",
-      CANCELED: "已取消"
+      CANCELED: "已取消",
+      PENDING_REFUND: "待退款"
     },
     bookingStatus: [
       { value: "PENDING", label: "待支付" },
       { value: "BOOKED", label: "已确认" },
       { value: "IN_SERVICE", label: "已入场" },
       { value: "FINISHED", label: "已结束" },
-      { value: "CANCELED", label: "已取消" }
+      { value: "CANCELED", label: "已取消" },
+      { value: "PENDING_REFUND", label: "待退款" }
     ],
     cardTypes: {},
     depositLevels: [],
