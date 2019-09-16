@@ -5,47 +5,50 @@
           v-icon mdi-chevron-left
         v-toolbar-title 预约详情
     v-container
-      v-card.p-3.flex
-        div.p-4(style="flex:3;border-right:1px solid grey")
-          v-list-item
-            v-list-item-content 手机号
-            v-list-item-action {{booking.customer.mobile}}
-          v-list-item
-            v-list-item-content 昵称
-            v-list-item-action {{booking.customer.name}}
-          v-list-item
-            v-list-item-content 日期
-            v-list-item-action {{booking.date}}
-          v-list-item
-            v-list-item-content 人数
-            v-list-item-action {{booking.membersCount}}
-          v-list-item
-            v-list-item-content 入场时间
-            v-list-item-action {{booking.checkInAt}}
-        div.p-4(style="flex:2")
-          v-list-item
-            v-list-item-content 类型
-            v-list-item-action {{configs.bookingTypeMap[booking.type]}}
-          v-list-item
-            v-list-item-content 状态
-            v-list-item-action {{configs.bookingStatusMap[booking.status]}}
-          v-list-item
-            v-list-item-content 时长
-            v-list-item-action {{booking.hours}} 小时
-          v-list-item
-            v-list-item-content 袜子数
-            v-list-item-action {{booking.socksCount}}
-          v-list-item
-            v-list-item-content 备注
-            v-list-item-action {{booking.remarks}}
-        v-card-actions(style="flex:1;min-width:0")
+      v-card.p-3
+        div.flex
+          div.p-4(style="flex:3;border-right:1px solid grey")
+            v-list-item
+              v-list-item-content 手机号
+              v-list-item-action {{booking.customer.mobile}}
+            v-list-item
+              v-list-item-content 昵称
+              v-list-item-action {{booking.customer.name}}
+            v-list-item
+              v-list-item-content 日期
+              v-list-item-action {{booking.date}}
+            v-list-item
+              v-list-item-content 人数
+              v-list-item-action {{booking.membersCount}}
+            v-list-item
+              v-list-item-content 入场时间
+              v-list-item-action {{booking.checkInAt}}
+          div.p-4(style="flex:2")
+            v-list-item
+              v-list-item-content 类型
+              v-list-item-action {{configs.bookingTypeMap[booking.type]}}
+            v-list-item
+              v-list-item-content 状态
+              v-list-item-action {{configs.bookingStatusMap[booking.status]}}
+            v-list-item
+              v-list-item-content 时长
+              v-list-item-action {{booking.hours}} 小时
+            v-list-item
+              v-list-item-content 袜子数
+              v-list-item-action {{booking.socksCount}}
+            v-list-item
+              v-list-item-content 备注
+              v-list-item-action {{booking.remarks}}
+        v-divider.pt-2
+        v-card-actions.justify-end(style="flex:1;min-width:0")
           //- v-bottom-sheet(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="finishForm.confirm")
           //-   template(v-slot:activator="{on}")
           //-     v-btn(color="success" dark v-on="on") 完成订单
           //-   v-sheet.px-10.flex.items-center(height="100px")
           //-     v-btn.w-full(block color="primary"  @click="finishBooking" :loading="finishForm.loading" ) 确认完成
+          
 
-          v-bottom-sheet.ml-4(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
+          v-bottom-sheet.mx-2(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
             template(v-slot:activator="{on}")
               v-btn(color="primary" dark v-on="on" style="height:3rem;width:6rem") 延长时间
             v-sheet.p-10.items-center(height="320px")
@@ -60,16 +63,22 @@
                     v-icon {{item.icon}}
               v-btn.mt-5.w-full(v-if="!extendForm.confirm_payment" block color="primary"  @click="extendBooking" :loading="extendForm.loading || extendForm.loading_price" :disabled="extendForm.price == 0") 确认延长
               v-btn.mt-5.w-full(v-if="extendForm.confirm_payment" block color="success"  @click="comfirmPayment" :loading="extendForm.loading_confirmPayment") 确认收款完成
-
-          v-bottom-sheet.ml-4(v-if="['BOOKED'].includes(booking.status)" v-model="refundForm.confirm")
+          
+          v-bottom-sheet.mx-2(v-if="['BOOKED'].includes(booking.status)"  v-model="startServiceForm.confirm")
+            template(v-slot:activator="{on}")
+              v-btn.self-end(color="success" dark v-on="on") 开始服务
+            v-sheet.px-10.flex.items-center(height="100px")
+              v-btn.w-full(block color="success"  @click="startService" :loading="startServiceForm.loading" ) 确认开始服务
+          
+          v-bottom-sheet.mx-2(v-if="['BOOKED'].includes(booking.status)" v-model="refundForm.confirm")
             template(v-slot:activator="{on}")
               v-btn.self-end(color="error" dark v-on="on") 退款并取消
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="refundBooking" :loading="refundForm.loading" ) 确认退款
-          v-bottom-sheet.ml-4(v-model="refundManualForm.confirm")
+          v-bottom-sheet(v-model="refundManualForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确认退款
-          v-bottom-sheet.ml-4(v-model="payManuallForm.confirm")
+          v-bottom-sheet(v-model="payManuallForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="payBookingManual" :loading="payManuallForm.loading" ) 确认手动收款
       v-card.p-3.mt-5(v-if="['BOOKED'].includes(booking.status)" )
@@ -120,6 +129,10 @@ export default {
       ],
       customer: {},
       finishForm: {
+        confirm: false,
+        loading: false
+      },
+      startServiceForm: {
         confirm: false,
         loading: false
       },
@@ -252,6 +265,14 @@ export default {
           this.extendForm.confirm_payment = true;
           break;
       }
+    },
+    async startService() {
+      const { id } = this.booking;
+      this.startServiceForm.loading = true;
+      const res = await updateBooking({ id, status: "IN_SERVICE" });
+      this.startServiceForm.loading = false;
+      this.startServiceForm.confirm = false;
+      this.getBooking({ id: this.booking.id });
     },
     async refundBooking() {
       const { id } = this.booking;
