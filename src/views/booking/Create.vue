@@ -80,7 +80,11 @@
               v-btn(color="primary" :disabled="!createBookingForm.valid || createBookingForm.price =='0'"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
             v-bottom-sheet(v-model="createBookingForm.confirm" persistent)
               v-sheet.px-10.flex.items-center(height="100px")
-                v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认收款完成
+                div.w-full
+                  div.mr-5.text-lg.my-0
+                    span.text-orange-600 ￥{{createBookingForm.price}}元
+                    span.ml-2.text-orange-400.text-sm 会员卡: {{creditPrice}}元 / 现场支付: {{createBookingForm.price-creditPrice}}元
+                  v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认收款完成
 
           v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'" @submit.native.prevent)
             v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
