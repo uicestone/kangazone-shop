@@ -5,38 +5,66 @@
         v-icon mdi-chevron-left
       v-toolbar-title 创建/选择预约
     v-container.flex.justify-center.items-center.flex-1
-      v-card.py-4.px-7
-        div
-          v-form(ref="searchUserForm" v-if="step == 'searchUser'" @submit.native.prevent)
-            v-autocomplete(
-              label="手机号" 
-              clearable
-              autofocus
-              hide-no-data
-              v-model="searchUserForm.user" 
-              :search-input.sync="searchUserForm.searchText"
-              :loading="searchUserForm.loading"
-              :items="searchUserForm.items"
-              item-text="mobile"
-              :item-value="item => item"
-              required)
-            div.flex.justify-center.align-center
-              v-btn(color="primary" dark v-if="!userValid" @click="goCreateUser") 创建用户
-              v-overflow-btn.mr-4(
-                type="number"
-                v-show="searchUserForm.bookings.length > 0"
-                :loading="searchUserForm.bookings_loading" 
-                :items="searchUserForm.bookings" 
-                label="已预约签到" 
-                dense
-                color="primary"
-                v-if="userValid"
-                :item-text="getDropDownText"
-                :item-value="i => i"
-                @change="goCheckIn"
-              ) 
-              v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
-          v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'" @submit.native.prevent)
+      div
+        //- 搜索用户
+        div(v-if="step == 'searchUser'" )
+          v-card.py-4.px-7
+            v-form(ref="searchUserForm" @submit.native.prevent)
+              v-autocomplete(
+                label="手机号" 
+                clearable
+                autofocus
+                hide-no-data
+                v-model="searchUserForm.user" 
+                :search-input.sync="searchUserForm.searchText"
+                :loading="searchUserForm.loading"
+                :items="searchUserForm.items"
+                item-text="mobile"
+                :item-value="item => item"
+                required)
+              div.flex.justify-center.align-center
+                v-btn(color="primary" dark v-if="!userValid" @click="goCreateUser") 创建用户
+                v-overflow-btn.mr-4(
+                  type="number"
+                  v-show="searchUserForm.bookings.length > 0"
+                  :loading="searchUserForm.bookings_loading" 
+                  :items="searchUserForm.bookings" 
+                  label="已预约签到" 
+                  dense
+                  color="primary"
+                  v-if="userValid"
+                  :item-text="getDropDownText"
+                  :item-value="i => i"
+                  @change="goCheckIn"
+                ) 
+                v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
+          v-card.py-4.px-7.mt-2(v-if="searchUserForm.user.id")
+            div(v-if="!searchUserForm.user.cardNo")
+              v-text-field(label="绑定卡号" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number")
+              v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
+            div(v-if="searchUserForm.user.cardNo")
+              v-text-field(label="余额" hide-details  v-model="searchUserForm.user.credit || 0"  disabled)
+              v-btn(color="primary" block @click="step = 'topup'") 充值
+        //- 充值                     
+        v-card.py-4.px-7(v-if="step=='topup'")
+          v-bottom-navigation.mt-2(v-model="topupForm.depositLevel" grow icons-and-text style="box-shadow:none")
+            v-btn(v-for="item in configs.depositLevels" :key="item.price" :value="item.price")
+              span.text-2xl ￥{{item.price}}
+          v-divider
+          v-bottom-navigation.mt-2(v-model="topupForm.paymentGateway" grow icons-and-text  style="box-shadow:none")
+            v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
+              span {{item.label}}
+              v-icon {{item.icon}}
+          v-btn.mt-4(color="primary" block @click="handleTopup" :loading="topupForm.loading") 确认充值
+          v-bottom-sheet(v-model="topupForm.confirm" persistent)
+            v-sheet.px-10.flex.items-center(height="100px")
+              div.w-full
+                div.mr-5.text-lg.my-0
+                  span.text-orange-600 ￥{{topupForm.depositLevel}}元
+                v-btn.w-full(block color="primary"  @click="comfirmTopupPayment" :loading="topupForm.loading_confirm") 确认收款完成
+        //- 创建用户
+        v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'" @submit.native.prevent)
+          v-card.py-4.px-7
             v-text-field(label="手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number")
             v-text-field(label="用户名" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable)
             v-radio-group(row v-model="createUserForm.gender")
@@ -44,11 +72,13 @@
               v-radio(label="女" value="2")
             div
               v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 保存用户并创建预约
-          v-form(v-model="createBookingForm.valid" ref="createBookingForm" v-if="step == 'createBooking'" @submit.native.prevent)
-            div.flex
+        //- 创建订单
+        v-card.py-4.px-7(v-if="step == 'createBooking'")
+          v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)
+            .flex
               div(style="flex:2")
                 v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
-                v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit"  disabled)
+                v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit || 0"  disabled type="number")
                 v-menu
                   template(v-slot:activator="{on}")
                     v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date")
@@ -68,11 +98,10 @@
                   v-btn.px-10(:value=1 text) 1小时
                   v-btn.px-10(:value=2 text) 2小时
                   v-btn.px-10(:value=3 text) 3小时
-
             v-bottom-navigation.mt-2(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none")
-                v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value")
-                  span {{item.label}}
-                  v-icon {{item.icon}}
+              v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
+                span {{item.label}}
+                v-icon {{item.icon}}
             div.flex.mt-3.justify-space-between.align-end
               div.mr-5.text-lg.my-0
                 span.text-orange-600 ￥{{createBookingForm.price}}元
@@ -85,8 +114,9 @@
                     span.text-orange-600 ￥{{createBookingForm.price}}元
                     span.ml-2.text-orange-400.text-sm 会员卡: {{creditPrice}}元 / 现场支付: {{createBookingForm.price-creditPrice}}元
                   v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认收款完成
-
-          v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'" @submit.native.prevent)
+        //- 签到
+        v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'" @submit.native.prevent)
+          v-card.py-4.px-7
             v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
             v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
 
@@ -94,7 +124,7 @@
 
 <script>
 import { signup, User } from "../../services";
-import { findUser } from "../../services/user";
+import { findUser, updateUser, userDeposit, getUser } from "../../services/user";
 import { sync } from "vuex-pathify";
 import { findBookings, createBooking, updateBooking, getBookingPrice } from "../../services/booking";
 import { moment } from "../../utils/moment";
@@ -108,13 +138,25 @@ export default {
     return {
       today: moment().format("YYYY-MM-DD"),
       step: "searchUser",
+      topupForm: {
+        confirm: false,
+        loading_confirm: false,
+        depositLevel: 1000,
+        paymentGateway: "scan",
+        loading: false,
+        payment: {}
+      },
       searchUserForm: {
         user: {
           id: "",
-          mobile: ""
+          mobile: "",
+          credit: 0,
+          cardNo: 0
         },
         bookings: [],
         bookings_loading: false,
+        bindCard_loading: false,
+        cardNo: null,
         searchText: "",
         loading: false,
         items: []
@@ -133,7 +175,7 @@ export default {
           hours: 1,
           membersCount: 1,
           socksCount: 0,
-          paymentGateway: 0
+          paymentGateway: "scan"
         },
         user: {
           mobile: "",
@@ -166,7 +208,7 @@ export default {
       if (this.createBookingForm.user.credit > this.createBookingForm.price) {
         return "credit";
       }
-      return this.createBookingForm.paymentGateways[this.createBookingForm.form.paymentGateway].value;
+      return this.createBookingForm.form.paymentGateway;
     },
     configs: sync("configs"),
     currentStore: sync("store/currentStore"),
@@ -231,6 +273,52 @@ export default {
     }
   },
   methods: {
+    async refreshSearchUser() {
+      this.step = "searchUser";
+      const { id } = this.searchUserForm.user;
+      const res = await getUser({ id });
+      this.searchUserForm.user = res.data;
+    },
+    async handleTopup() {
+      const { paymentGateway, depositLevel } = this.topupForm;
+      const { id } = this.searchUserForm.user;
+      this.topupForm.loading = true;
+      const { data: payment } = await userDeposit({ id, depositLevel, paymentGateway });
+      this.topupForm.payment = payment;
+      this.topupForm.loading = false;
+      switch (paymentGateway) {
+        case "scan":
+          const { id: orderId, attach: orderInfo, amount } = payment;
+          const paymentRes = await sendPaymentToSunmi({ amount, orderId, businessId: orderId, orderInfo });
+          if (paymentRes.resultCode !== "T00") {
+            throw new Error(`${paymentRes.resultCode}: ${paymentRes.resultMsg}`);
+          }
+          await updatePayment({ id: orderId, paid: true });
+          this.refreshSearchUser();
+          break;
+        case "cash":
+        case "card":
+          openDrawer();
+          this.topupForm.confirm = true;
+          break;
+      }
+    },
+    async comfirmTopupPayment() {
+      this.topupForm.loading_confirm = true;
+      const { id } = this.topupForm.payment;
+      const res = await updatePayment({ paid: true, id });
+      this.topupForm.loading_confirm = false;
+      this.topupForm.confirm = false;
+      this.refreshSearchUser();
+    },
+    async handleBindCardNo() {
+      this.searchUserForm.bindCard_loading = true;
+      const { cardNo } = this.searchUserForm;
+      const { id } = this.searchUserForm.user;
+      const res = await updateUser({ cardNo, id });
+      this.searchUserForm.user.cardNo = res.data.cardNo;
+      this.searchUserForm.bindCard_loading = false;
+    },
     goCreateUser() {
       Object.assign(this.createUserForm, { mobile: "", username: "", gender: "male" });
       this.step = "createUser";
