@@ -278,6 +278,7 @@ export default {
       const { id } = this.searchUserForm.user;
       const res = await getUser({ id });
       this.searchUserForm.user = res.data;
+      this.searchUserForm.searchText = res.data.mobile;
     },
     async handleTopup() {
       const { paymentGateway, depositLevel } = this.topupForm;
