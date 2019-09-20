@@ -119,6 +119,8 @@
           v-card.py-4.px-7
             v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
             v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
+            v-btn.ml-2(color="warning" @click="handlePrintBookingOnly") 仅打印小票
+
 
 </template>
 
@@ -389,6 +391,13 @@ export default {
       const res = await updateBooking({ id, bandIds });
       await bookingPrint({ id });
       this.checkInForm.loading = false;
+      this.$router.push({ name: "bookingDetail", params: { id } });
+    },
+    async handlePrintBookingOnly() {
+      const {
+        booking: { id }
+      } = this.checkInForm;
+      await bookingPrint({ id });
       this.$router.push({ name: "bookingDetail", params: { id } });
     },
     async comfirmPayment() {
