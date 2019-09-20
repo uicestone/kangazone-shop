@@ -82,7 +82,9 @@
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="payBookingManual" :loading="payManuallForm.loading" ) 确认手动收款
       v-card.p-3.mt-5(v-if="['BOOKED'].includes(booking.status)" )
-        v-form( v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent )
+        div(v-if="booking.bandIds && booking.bandIds.length > 0")
+          v-text-field(v-for="(item, index) in booking.bandIds" :key="index" :label="`玩家${index+1}手环号`" disabled :value="item")
+        v-form(v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent v-else)
           v-text-field(v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
           v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
 
@@ -175,6 +177,7 @@ export default {
       },
       booking: {
         id: null,
+        bandIds: [],
         customer: {
           name: null,
           mobile: null
