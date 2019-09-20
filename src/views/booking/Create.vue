@@ -38,7 +38,7 @@
                   @change="goCheckIn"
                 ) 
                 v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
-          v-card.py-4.px-7.mt-2(v-if="searchUserForm.user.id")
+          v-card.py-4.px-7.mt-2(v-if="$_.get(searchUserForm, 'user.id')")
             div(v-if="!searchUserForm.user.cardNo && searchUserForm.user.credit")
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number")
               v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
@@ -71,7 +71,7 @@
               v-radio(label="男" value="1")
               v-radio(label="女" value="2")
             div
-              v-btn(color="primary" :disabled="!createUserForm.valid" @click="createBookingFromCreaetUser") 保存用户并创建预约
+              v-btn(color="primary" :disabled="!createUserForm.valid" @click="createUser") 保存用户
         //- 创建订单
         v-card.py-4.px-7(v-if="step == 'createBooking'")
           v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)
@@ -278,6 +278,7 @@ export default {
     async refreshSearchUser() {
       this.step = "searchUser";
       const { id } = this.searchUserForm.user;
+      if (!id) return;
       const res = await getUser({ id });
       this.searchUserForm.user = res.data;
       this.searchUserForm.searchText = res.data.mobile;
@@ -330,11 +331,11 @@ export default {
       this.createBookingForm.user = this.searchUserForm.user;
       this.step = "createBooking";
     },
-    async createBookingFromCreaetUser() {
+    async createUser() {
       const { mobile, username, gender } = this.createUserForm;
       const res = await signup({ username, gender, mobile });
-      this.createBookingForm.user = res.data;
-      this.step = "createBooking";
+      this.searchUserForm.user = res.data;
+      this.refreshSearchUser();
     },
     goCheckIn(booking) {
       this.checkInForm.booking = booking;
@@ -374,8 +375,10 @@ export default {
           await updatePayment({ id: orderId, paid: true });
           return this.goCheckIn(this.createBookingForm.newBooking);
         case "cash":
-        case "card":
           openDrawer();
+          this.createBookingForm.confirm = true;
+          break;
+        case "card":
           this.createBookingForm.confirm = true;
           break;
         case "credit":

@@ -260,8 +260,10 @@ export default {
           this.extendForm.confirm = false;
           break;
         case "cash":
-        case "card":
           openDrawer();
+          this.extendForm.confirm_payment = true;
+          break;
+        case "card":
           this.extendForm.confirm_payment = true;
           break;
         case "credit":
