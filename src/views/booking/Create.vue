@@ -94,10 +94,11 @@
                     p.w-12 袜子数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px")
-                v-btn-toggle.mt-4(v-model="createBookingForm.form.hours" mandatory)
+                v-btn-toggle.mt-4(v-model="createBookingForm.form.hours" mandatory v-if="!createBookingForm.form.useCoupon")
                   v-btn.px-10(:value=1 text) 1小时
                   v-btn.px-10(:value=2 text) 2小时
                   v-btn.px-10(:value=3 text) 3小时
+                v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
             v-bottom-navigation.mt-2(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none")
               v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
                 span {{item.label}}
@@ -177,7 +178,8 @@ export default {
           hours: 1,
           membersCount: 1,
           socksCount: 0,
-          paymentGateway: "scan"
+          paymentGateway: "scan",
+          useCoupon: false
         },
         user: {
           mobile: "",
@@ -218,6 +220,10 @@ export default {
       if (!this.searchUserForm.user) return false;
       return this.searchUserForm.user.mobile;
     },
+    bookingHours() {
+      if (this.createBookingForm.form.useCoupon) return 0;
+      return this.createBookingForm.form.hours;
+    },
     creditPrice() {
       const price = _.get(this, "createBookingForm.price", 0);
       const credit = _.get(this, "createBookingForm.user.credit", 0);
@@ -229,7 +235,8 @@ export default {
       async handler(newVal, oldVal) {
         if (!oldVal || this.createBookingForm.loading_price) return;
         this.createBookingForm.loading_price = true;
-        let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
+        let { type, date, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
+        const hours = this.bookingHours;
         const { id: customerId } = this.createBookingForm.user;
 
         const { paymentGateway } = this;
@@ -343,7 +350,8 @@ export default {
     },
     async createBooking() {
       this.createBookingForm.loading_createBooking = true;
-      let { type, date, hours, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
+      let { type, date, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
+      const hours = this.bookingHours;
       const { id: customerId } = this.createBookingForm.user;
       const { paymentGateway } = this;
       const res = await createBooking({
