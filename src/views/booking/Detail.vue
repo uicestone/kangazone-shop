@@ -40,6 +40,7 @@
               v-list-item-content 备注
               v-list-item-action {{booking.remarks}}
         v-divider.pt-2
+        //- 操作栏
         v-card-actions.justify-end(style="flex:1;min-width:0")
           //- v-bottom-sheet(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="finishForm.confirm")
           //-   template(v-slot:activator="{on}")
@@ -81,13 +82,12 @@
           v-bottom-sheet(v-model="payManuallForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
               v-btn.w-full(block color="error"  @click="payBookingManual" :loading="payManuallForm.loading" ) 确认手动收款
+      //- 绑定手环
       v-card.p-3.mt-5(v-if="['BOOKED'].includes(booking.status)" )
-        div(v-if="booking.bandIds && booking.bandIds.length > 0")
-          v-text-field(v-for="(item, index) in booking.bandIds" :key="index" :label="`玩家${index+1}手环号`" disabled :value="item")
-        v-form(v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent v-else)
+        v-form(v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent )
           v-text-field(v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
           v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
-
+      //- 手动收款/退款
       v-data-table.mt-10.pt-4(
            v-if="payablePayments.length > 0"
           :headers="headers" 
@@ -337,6 +337,7 @@ export default {
       } = res.data;
       const res1 = await getUser({ id: customerId });
       this.customer = res1.data;
+      this.checkInForm.bandIds = res.data.bandIds;
       this.updateExtendPrice();
     },
     async comfirmPayment() {
