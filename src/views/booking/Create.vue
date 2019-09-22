@@ -95,10 +95,11 @@
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px")
                 v-btn-toggle.mt-4(v-model="createBookingForm.form.hours" mandatory v-if="!createBookingForm.form.useCoupon")
-                  v-btn.px-10(:value=1 text) 1小时
-                  v-btn.px-10(:value=2 text) 2小时
-                  v-btn.px-10(:value=3 text) 3小时
-                v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
+                  v-btn.px-5(:value=0 text) 体验券
+                  v-btn.px-5(:value=1 text) 1小时
+                  v-btn.px-5(:value=2 text) 2小时
+                  v-btn.px-5(:value=3 text) 3小时
+                //- v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
             v-bottom-navigation.mt-2(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none")
               v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
                 span {{item.label}}
@@ -107,7 +108,7 @@
               div.mr-5.text-lg.my-0
                 span.text-orange-600 ￥{{createBookingForm.price}}元
                 span.ml-2.text-orange-400.text-sm 会员卡: {{creditPrice}}元 / 现场支付: {{createBookingForm.price-creditPrice}}元
-              v-btn(color="primary" :disabled="!createBookingForm.valid || createBookingForm.price =='0'"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
+              v-btn(color="primary" :disabled="!createBookingForm.valid"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
             v-bottom-sheet(v-model="createBookingForm.confirm" persistent)
               v-sheet.px-10.flex.items-center(height="100px")
                 div.w-full
@@ -220,10 +221,6 @@ export default {
       if (!this.searchUserForm.user) return false;
       return this.searchUserForm.user.mobile;
     },
-    bookingHours() {
-      if (this.createBookingForm.form.useCoupon) return 0;
-      return this.createBookingForm.form.hours;
-    },
     creditPrice() {
       const price = _.get(this, "createBookingForm.price", 0);
       const credit = _.get(this, "createBookingForm.user.credit", 0);
@@ -235,8 +232,7 @@ export default {
       async handler(newVal, oldVal) {
         if (!oldVal || this.createBookingForm.loading_price) return;
         this.createBookingForm.loading_price = true;
-        let { type, date, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
-        const hours = this.bookingHours;
+        let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
         const { id: customerId } = this.createBookingForm.user;
 
         const { paymentGateway } = this;
@@ -350,8 +346,7 @@ export default {
     },
     async createBooking() {
       this.createBookingForm.loading_createBooking = true;
-      let { type, date, checkInAt, membersCount, socksCount } = this.createBookingForm.form;
-      const hours = this.bookingHours;
+      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
       const { paymentGateway } = this;
       const res = await createBooking({
