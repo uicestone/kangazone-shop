@@ -67,9 +67,9 @@
           
           v-bottom-sheet.mx-2(v-if="['BOOKED'].includes(booking.status)"  v-model="startServiceForm.confirm")
             template(v-slot:activator="{on}")
-              v-btn.self-end(color="success" dark v-on="on") 开始服务
+              v-btn.self-end(color="success" dark v-on="on") 确认入场
             v-sheet.px-10.flex.items-center(height="100px")
-              v-btn.w-full(block color="success"  @click="startService" :loading="startServiceForm.loading" ) 确认开始服务
+              v-btn.w-full(block color="success"  @click="startService" :loading="startServiceForm.loading" ) 确认用户已入场
           
           v-bottom-sheet.mx-2(v-if="['BOOKED'].includes(booking.status)" v-model="refundForm.confirm")
             template(v-slot:activator="{on}")
