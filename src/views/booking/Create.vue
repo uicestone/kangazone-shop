@@ -214,7 +214,7 @@ export default {
   },
   computed: {
     paymentGateway() {
-      if (this.createBookingForm.user.credit > this.createBookingForm.price) {
+      if (this.createBookingForm.user.credit > this.createBookingForm.price || this.createBookingForm.form.hours == 0) {
         return "credit";
       }
       return this.createBookingForm.form.paymentGateway;
@@ -322,8 +322,10 @@ export default {
           this.refreshSearchUser();
           break;
         case "cash":
-        case "card":
           openDrawer();
+          this.topupForm.confirm = true;
+          break;
+        case "card":
           this.topupForm.confirm = true;
           break;
       }
