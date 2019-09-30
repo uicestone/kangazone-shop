@@ -32,6 +32,7 @@ const state = {
       { value: "CANCELED", label: "已取消" },
       { value: "PENDING_REFUND", label: "待退款" }
     ],
+    coupons: [],
     cardTypes: {},
     depositLevels: [],
     hourPrice: null,

@@ -76,7 +76,7 @@
         v-card.py-4.px-7(v-if="step == 'createBooking'")
           v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)
             .flex
-              div(style="flex:2")
+              div.items-between.flex.flex-column(style="flex:2")
                 v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
                 v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit || 0"  disabled type="number")
                 v-menu
@@ -84,21 +84,22 @@
                     v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date")
                   v-date-picker(v-model="createBookingForm.form.date")
               div.pl-5.items-between.flex.flex-column(style="flex:3;width:70%")
-                v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
+                v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" :disabled="createBookingForm.fixedMembersCount"  @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 人数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px")
-                v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount" @change="i => createBookingForm.form.socksCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
+                v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount"  @change="i => createBookingForm.form.socksCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 袜子数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px")
-                v-btn-toggle.mt-4(v-model="createBookingForm.form.hours" mandatory v-if="!createBookingForm.form.useCoupon")
-                  v-btn.px-5(:value=0 text) 体验券
-                  v-btn.px-5(:value=1 text) 1小时
-                  v-btn.px-5(:value=2 text) 2小时
-                  v-btn.px-5(:value=3 text) 3小时
+                v-btn-toggle.mt-4(v-model="createBookingForm.form.hours"  mandatory)
+                  v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 体验券
+                  v-btn.px-5(:value=1 text :disabled="createBookingForm.fixedHours") 1小时
+                  v-btn.px-5(:value=2 text :disabled="createBookingForm.fixedHours") 2小时
+                  v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
+                v-select(:items="coupons" clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
                 //- v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
             v-bottom-navigation.mt-2(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none")
               v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
@@ -186,6 +187,9 @@ export default {
           mobile: "",
           credit: 0
         },
+        coupon: {},
+        fixedHours: false,
+        fixedMembersCount: false,
         price: 0,
         confirm: false,
         loading_price: false,
@@ -225,6 +229,12 @@ export default {
       const price = _.get(this, "createBookingForm.price", 0);
       const credit = _.get(this, "createBookingForm.user.credit", 0);
       return Math.min(price, credit);
+    },
+    coupons() {
+      return this.configs.coupons.filter(i => {
+        const { validFrom, validTill } = i;
+        return moment().isBetween(moment(validFrom).subtract(1, "day"), moment(validTill), "days", true);
+      });
     }
   },
   watch: {
@@ -234,13 +244,14 @@ export default {
         this.createBookingForm.loading_price = true;
         let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
         const { id: customerId } = this.createBookingForm.user;
-
+        const { slug } = this.createBookingForm.coupon || {};
         const { paymentGateway } = this;
         const res = await getBookingPrice({
           store: this.currentStore.id,
           type,
           date,
           hours,
+          coupon: slug,
           customer: customerId,
           checkInAt: moment().format("HH:mm"),
           membersCount,
@@ -253,6 +264,13 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    "createBookingForm.coupon"(val) {
+      const { fixedHours, fixedMembersCount, hours, membersCount } = val || {};
+      this.createBookingForm.form.hours = hours || 1;
+      this.createBookingForm.form.membersCount = membersCount || 1;
+      this.createBookingForm.fixedHours = fixedHours || false;
+      this.createBookingForm.fixedMembersCount = fixedMembersCount || false;
     },
     async "searchUserForm.searchText"(val) {
       const { searchText, loading } = this.searchUserForm;
@@ -348,12 +366,14 @@ export default {
       this.createBookingForm.loading_createBooking = true;
       let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
+      const { slug } = this.createBookingForm.coupon || {};
       const { paymentGateway } = this;
       const res = await createBooking({
         store: this.currentStore.id,
         type,
         date,
         hours,
+        coupon: slug,
         customer: customerId,
         checkInAt: moment().format("HH:mm:ss"),
         membersCount,
