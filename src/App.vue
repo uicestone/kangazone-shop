@@ -65,6 +65,9 @@ button:focus {
 .h-content {
   height: calc(100vh - 56px);
 }
+header {
+  flex: 0 !important;
+}
 .v-toolbar__content {
   height: 24px !important;
   margin: 4px auto;
