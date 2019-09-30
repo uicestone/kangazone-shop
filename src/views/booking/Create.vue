@@ -258,6 +258,8 @@ export default {
           socksCount,
           useCredit: paymentGateway == "credit",
           paymentGateway
+        }).catch(err => {
+          this.createBookingForm.loading_price = false;
         });
         this.createBookingForm.price = res.data.price;
         this.createBookingForm.loading_price = false;
@@ -276,7 +278,9 @@ export default {
       const { searchText, loading } = this.searchUserForm;
       if (loading || !searchText) return;
       this.searchUserForm.loading = true;
-      const res = await findUser({ keyword: searchText });
+      const res = await findUser({ keyword: searchText }).catch(err => {
+        this.searchUserForm.loading = false;
+      });
       this.searchUserForm.items = res.data;
       this.searchUserForm.loading = false;
     },
@@ -308,7 +312,9 @@ export default {
       const { paymentGateway, depositLevel } = this.topupForm;
       const { id } = this.searchUserForm.user;
       this.topupForm.loading = true;
-      const { data: payment } = await userDeposit({ id, depositLevel, paymentGateway });
+      const { data: payment } = await userDeposit({ id, depositLevel, paymentGateway }).catch(err => {
+        this.topupForm.loading = false;
+      });
       this.topupForm.payment = payment;
       this.topupForm.loading = false;
       switch (paymentGateway) {
@@ -333,7 +339,9 @@ export default {
     async comfirmTopupPayment() {
       this.topupForm.loading_confirm = true;
       const { id } = this.topupForm.payment;
-      const res = await updatePayment({ paid: true, id });
+      const res = await updatePayment({ paid: true, id }).catch(err => {
+        this.topupForm.loading_confirm = false;
+      });
       this.topupForm.loading_confirm = false;
       this.topupForm.confirm = false;
       this.refreshSearchUser();
@@ -342,7 +350,9 @@ export default {
       this.searchUserForm.bindCard_loading = true;
       const { cardNo } = this.searchUserForm;
       const { id } = this.searchUserForm.user;
-      const res = await updateUser({ cardNo, id });
+      const res = await updateUser({ cardNo, id }).catch(err => {
+        this.searchUserForm.bindCard_loading = false;
+      });
       this.searchUserForm.user.cardNo = res.data.cardNo;
       this.searchUserForm.bindCard_loading = false;
     },
@@ -417,7 +427,9 @@ export default {
         bandIds
       } = this.checkInForm;
       const res = await updateBooking({ id, bandIds });
-      await bookingPrint({ id });
+      await bookingPrint({ id }).catch(err => {
+        this.checkInForm.loading = false;
+      });
       this.checkInForm.loading = false;
       this.$router.push({ name: "bookingDetail", params: { id } });
     },
@@ -435,7 +447,9 @@ export default {
       } = this.createBookingForm;
       const [payment] = payments;
       const { id } = payment;
-      const res = await updatePayment({ paid: true, id });
+      const res = await updatePayment({ paid: true, id }).catch(err => {
+        this.createBookingForm.loading_confirm = false;
+      });
       this.createBookingForm.loading_confirm = false;
       this.createBookingForm.confirm = false;
       this.goCheckIn(this.createBookingForm.newBooking);

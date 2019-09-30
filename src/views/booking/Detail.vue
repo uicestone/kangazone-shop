@@ -226,7 +226,9 @@ export default {
       this.checkInForm.loading = true;
       const { bandIds } = this.checkInForm;
       const { id } = this.booking;
-      const res = await updateBooking({ id, bandIds });
+      const res = await updateBooking({ id, bandIds }).catch(err => {
+        this.checkInForm.loading = false;
+      });
       await bookingPrint({ id });
       this.checkInForm.loading = false;
       this.getBooking({ id });
@@ -234,7 +236,9 @@ export default {
     async finishBooking() {
       const { id } = this.booking;
       this.finishForm.loading = true;
-      await updateBooking({ id, status: "FINISHED" });
+      await updateBooking({ id, status: "FINISHED" }).catch(err => {
+        this.finishForm.loading = false;
+      });
       this.finishForm.loading = false;
       this.finishForm.confirm = false;
       this.getBooking({ id });
@@ -244,7 +248,9 @@ export default {
       const { id } = this.booking;
       const { extendPaymentGateway: paymentGateway, extendHours: hours } = this;
 
-      const res = await updateBooking({ id, hours, paymentGateway: paymentGateway == "credit" ? null : paymentGateway });
+      const res = await updateBooking({ id, hours, paymentGateway: paymentGateway == "credit" ? null : paymentGateway }).catch(err => {
+        this.extendForm.loading = false;
+      });
       this.booking = res.data;
       this.extendForm.loading = false;
 
@@ -274,7 +280,9 @@ export default {
     async startService() {
       const { id } = this.booking;
       this.startServiceForm.loading = true;
-      const res = await updateBooking({ id, status: "IN_SERVICE" });
+      const res = await updateBooking({ id, status: "IN_SERVICE" }).catch(err => {
+        this.startServiceForm.loading = false;
+      });
       this.startServiceForm.loading = false;
       this.startServiceForm.confirm = false;
       this.getBooking({ id: this.booking.id });
@@ -282,7 +290,9 @@ export default {
     async refundBooking() {
       const { id } = this.booking;
       this.refundForm.loading = true;
-      const res = await updateBooking({ id, status: "CANCELED" });
+      const res = await updateBooking({ id, status: "CANCELED" }).catch(err => {
+        this.refundForm.loading = false;
+      });
       this.refundForm.loading = false;
       this.refundForm.confirm = false;
       await this.getBooking({ id });
@@ -302,7 +312,9 @@ export default {
         }
       }
 
-      await updatePayment({ id, paid: true });
+      await updatePayment({ id, paid: true }).catch(err => {
+        this.refundManualForm.loading = false;
+      });
 
       this.refundManualForm.loading = false;
       this.refundManualForm.confirm = false;
@@ -315,7 +327,9 @@ export default {
     async payBookingManual() {
       const { id } = this.payManuallForm.payment;
       this.payManuallForm.loading = true;
-      const res = await updatePayment({ id, paid: true });
+      const res = await updatePayment({ id, paid: true }).catch(err => {
+        this.payManuallForm.loading = false;
+      });
       this.payManuallForm.loading = false;
       this.payManuallForm.confirm = false;
       this.getBooking({ id: this.booking.id });
@@ -325,7 +339,9 @@ export default {
       this.extendForm.loading_price = true;
       const { extendPaymentGateway: paymentGateway, extendHours: hours } = this;
 
-      const res = await getBookingPrice({ ...this.booking, hours });
+      const res = await getBookingPrice({ ...this.booking, hours }).catch(err => {
+        this.extendForm.loading_price = false;
+      });
       this.extendForm.price = res.data.price - this.booking.price;
       this.extendForm.loading_price = false;
     },
@@ -345,7 +361,9 @@ export default {
       const { payments } = this.booking;
       const [payment] = payments;
       const { id } = payment;
-      const res = await updatePayment({ paid: true, id });
+      const res = await updatePayment({ paid: true, id }).catch(err => {
+        this.extendForm.loading_confirmPayment = false;
+      });
       this.extendForm.confirm_payment = false;
       this.extendForm.loading_confirmPayment = false;
       this.extendForm.confirm = false;
