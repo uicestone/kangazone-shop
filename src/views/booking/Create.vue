@@ -5,13 +5,13 @@
         v-icon mdi-chevron-left
       v-toolbar-title 创建/选择预约
     v-container.flex.justify-center.items-center.flex-1
-      div
+      div.flex-1
         //- 搜索用户
-        div(v-if="step == 'searchUser'" )
-          v-card.py-4.px-7
+        div.flex.justify-center.flex-row-reverse(v-if="step == 'searchUser'" )
+          v-card.py-4.px-7.ml-2
             v-form(ref="searchUserForm" @submit.native.prevent)
               v-autocomplete(
-                label="手机号" 
+                :label="searchUserForm.user.id ? '手机号' : '部分匹配的 手机号/昵称/卡号'" 
                 :clearable="!searchUserForm.user.id"
                 :disabled="!!searchUserForm.user.id"
                 autofocus
@@ -39,7 +39,7 @@
                   @change="goCheckIn"
                 ) 
                 v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
-          v-card.py-4.px-7.mt-2(v-if="$_.get(searchUserForm, 'user.id')")
+          v-card.py-4.px-7(v-if="$_.get(searchUserForm, 'user.id')")
             div(v-if="!searchUserForm.user.cardNo && searchUserForm.user.credit")
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number")
               v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
@@ -51,6 +51,8 @@
           v-bottom-navigation.mt-2(v-model="topupForm.depositLevel" grow icons-and-text style="box-shadow:none")
             v-btn(v-for="item in configs.depositLevels" :key="item.price" :value="item.price")
               span.text-2xl ￥{{item.price}}
+                br
+                span.text-lg 送 {{item.rewardCredit}}
           v-divider
           v-bottom-navigation.mt-2(v-model="topupForm.paymentGateway" grow icons-and-text  style="box-shadow:none")
             v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
@@ -66,13 +68,13 @@
         //- 创建用户
         v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'" @submit.native.prevent)
           v-card.py-4.px-7
-            v-text-field(label="手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number")
-            v-text-field(label="用户名" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable)
+            v-text-field(label="完整的手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number")
+            v-text-field(label="客人的姓名或昵称" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable)
             v-radio-group(row v-model="createUserForm.gender")
               v-radio(label="男" value="1")
               v-radio(label="女" value="2")
             div
-              v-btn(color="primary" :disabled="!createUserForm.valid" @click="createUser") 保存用户
+              v-btn(color="primary" :disabled="!createUserForm.valid" @click="createUser") 保存客人
         //- 创建订单
         v-card.py-4.px-7(v-if="step == 'createBooking'")
           v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)

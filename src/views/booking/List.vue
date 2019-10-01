@@ -1,5 +1,5 @@
 <template lang="pug">
-  div
+  div.flex.flex-column
     v-app-bar(color="primary" dark)
       v-app-bar-nav-icon(@click="$router.go(-1)")
         v-icon mdi-chevron-left
