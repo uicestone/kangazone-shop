@@ -12,7 +12,8 @@
             v-form(ref="searchUserForm" @submit.native.prevent)
               v-autocomplete(
                 label="手机号" 
-                clearable
+                :clearable="!searchUserForm.user.id"
+                :disabled="!!searchUserForm.user.id"
                 autofocus
                 hide-no-data
                 v-model="searchUserForm.user" 
