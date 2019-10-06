@@ -35,16 +35,16 @@ export interface QueryArgs {
   limit: number;
 }
 
-export const findBookings = (args: BookingFindArgs) => {
+export const findBookings = async (args: BookingFindArgs) => {
   const params = _.omitBy(args, _.isNil);
   return axios.request<Booking[]>({ url: "/booking", params });
 };
 
-export const getBooking = ({ id }) => {
+export const getBooking = async ({ id }) => {
   return axios.request<Booking>({ url: `/booking/${id}` });
 };
 
-export const createBooking = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
+export const createBooking = async ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
   const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer, coupon }, _.isNil);
   const params = _.omitBy({ useCredit, paymentGateway }, _.isNil);
   return axios.request<Booking>({
@@ -55,7 +55,7 @@ export const createBooking = ({ store, type, date, hours, checkInAt, membersCoun
   });
 };
 
-export const getBookingPrice = ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
+export const getBookingPrice = async ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
   const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer, coupon }, _.isNil);
   return axios.request<Booking>({
     url: `/booking-price`,
@@ -68,13 +68,13 @@ export const getBookingPrice = ({ store, type, date, hours, checkInAt, membersCo
   });
 };
 
-export const updateBooking = ({ id, bandIds, status, hours, paymentGateway, useCredit = true }) => {
+export const updateBooking = async ({ id, bandIds, status, hours, paymentGateway, useCredit = true }) => {
   const data = _.omitBy({ bandIds, status, hours }, _.isNil);
   const params = _.omitBy({ paymentGateway, useCredit }, _.isNil);
 
   return axios.request<Booking>({ method: "PUT", url: `/booking/${id}`, data, params });
 };
 
-export const getBookingReceiptData = ({ id }) => {
+export const getBookingReceiptData = async ({ id }) => {
   return axios.request<string>({ url: `/booking/${id}/receipt-data` });
 };

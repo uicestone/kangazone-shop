@@ -139,6 +139,7 @@ import { moment } from "../../utils/moment";
 import { config } from "../../../config";
 import { sendPaymentToSunmi, updatePayment, openDrawer, bookingPrint } from "../../services/payment";
 import { _ } from "../../utils/lodash";
+import { helpers } from "../../utils/helper";
 const { $App } = window;
 
 export default {
@@ -249,21 +250,25 @@ export default {
         const { id: customerId } = this.createBookingForm.user;
         const { slug } = this.createBookingForm.coupon || {};
         const { paymentGateway } = this;
-        const res = await getBookingPrice({
-          store: this.currentStore.id,
-          type,
-          date,
-          hours,
-          coupon: slug,
-          customer: customerId,
-          checkInAt: moment().format("HH:mm"),
-          membersCount,
-          socksCount,
-          useCredit: paymentGateway == "credit",
-          paymentGateway
-        }).catch(err => {
-          this.createBookingForm.loading_price = false;
-        });
+
+        const [err, res] = await helpers.runAsync(
+          getBookingPrice({
+            store: this.currentStore.id,
+            type,
+            date,
+            hours,
+            coupon: slug,
+            customer: customerId,
+            checkInAt: moment().format("HH:mm"),
+            membersCount,
+            socksCount,
+            useCredit: paymentGateway == "credit",
+            paymentGateway
+          })
+        );
+        if (err) {
+          return (this.createBookingForm.loading_price = false);
+        }
         this.createBookingForm.price = res.data.price;
         this.createBookingForm.loading_price = false;
       },
@@ -281,9 +286,11 @@ export default {
       const { searchText, loading } = this.searchUserForm;
       if (loading || !searchText) return;
       this.searchUserForm.loading = true;
-      const res = await findUser({ keyword: searchText }).catch(err => {
-        this.searchUserForm.loading = false;
-      });
+      const [err, res] = await helpers.runAsync(findUser({ keyword: searchText }));
+      if (err) {
+        return (this.searchUserForm.loading = false);
+      }
+
       this.searchUserForm.items = res.data;
       this.searchUserForm.loading = false;
     },
@@ -315,9 +322,10 @@ export default {
       const { paymentGateway, depositLevel } = this.topupForm;
       const { id } = this.searchUserForm.user;
       this.topupForm.loading = true;
-      const { data: payment } = await userDeposit({ id, depositLevel, paymentGateway }).catch(err => {
-        this.topupForm.loading = false;
-      });
+      const [err, { data: payment }] = await helpers.runAsync(userDeposit({ id, depositLevel, paymentGateway }));
+      if (err) {
+        return (this.topupForm.loading = false);
+      }
       this.topupForm.payment = payment;
       this.topupForm.loading = false;
       switch (paymentGateway) {
@@ -342,9 +350,11 @@ export default {
     async comfirmTopupPayment() {
       this.topupForm.loading_confirm = true;
       const { id } = this.topupForm.payment;
-      const res = await updatePayment({ paid: true, id }).catch(err => {
-        this.topupForm.loading_confirm = false;
-      });
+      const [err, res] = await helpers.runAsync(updatePayment({ paid: true, id }));
+      if (err) {
+        return (this.topupForm.loading_confirm = false);
+      }
+
       this.topupForm.loading_confirm = false;
       this.topupForm.confirm = false;
       this.refreshSearchUser();
@@ -353,9 +363,10 @@ export default {
       this.searchUserForm.bindCard_loading = true;
       const { cardNo } = this.searchUserForm;
       const { id } = this.searchUserForm.user;
-      const res = await updateUser({ cardNo, id }).catch(err => {
-        this.searchUserForm.bindCard_loading = false;
-      });
+      const [err, res] = await helpers.runAsync(updateUser({ cardNo, id }));
+      if (err) {
+        return (this.searchUserForm.bindCard_loading = false);
+      }
       this.searchUserForm.user.cardNo = res.data.cardNo;
       this.searchUserForm.bindCard_loading = false;
     },
@@ -383,21 +394,24 @@ export default {
       const { id: customerId } = this.createBookingForm.user;
       const { slug } = this.createBookingForm.coupon || {};
       const { paymentGateway } = this;
-      const res = await createBooking({
-        store: this.currentStore.id,
-        type,
-        date,
-        hours,
-        coupon: slug,
-        customer: customerId,
-        checkInAt: moment().format("HH:mm:ss"),
-        membersCount,
-        socksCount,
-        useCredit: true,
-        paymentGateway: paymentGateway == "credit" ? null : paymentGateway
-      }).catch(error => {
-        this.createBookingForm.loading_createBooking = false;
-      });
+      const [err, res] = await helpers.runAsync(
+        createBooking({
+          store: this.currentStore.id,
+          type,
+          date,
+          hours,
+          coupon: slug,
+          customer: customerId,
+          checkInAt: moment().format("HH:mm:ss"),
+          membersCount,
+          socksCount,
+          useCredit: true,
+          paymentGateway: paymentGateway == "credit" ? null : paymentGateway
+        })
+      );
+      if (err) {
+        return (this.createBookingForm.loading_createBooking = false);
+      }
       this.createBookingForm.loading_createBooking = false;
       this.createBookingForm.newBooking = res.data;
 
@@ -429,10 +443,13 @@ export default {
         booking: { id },
         bandIds
       } = this.checkInForm;
-      const res = await updateBooking({ id, bandIds });
-      await bookingPrint({ id }).catch(err => {
-        this.checkInForm.loading = false;
-      });
+
+      const [err, res] = await helpers.runAsync(updateBooking({ id, bandIds }));
+      if (err) {
+        return (this.checkInForm.loading = false);
+      }
+
+      await bookingPrint({ id });
       this.checkInForm.loading = false;
       this.$router.push({ name: "bookingDetail", params: { id } });
     },
@@ -450,9 +467,12 @@ export default {
       } = this.createBookingForm;
       const [payment] = payments;
       const { id } = payment;
-      const res = await updatePayment({ paid: true, id }).catch(err => {
-        this.createBookingForm.loading_confirm = false;
-      });
+
+      const [err, res] = await helpers.runAsync(updatePayment({ paid: true, id }));
+      if (err) {
+        return (this.createBookingForm.loading_confirm = false);
+      }
+
       this.createBookingForm.loading_confirm = false;
       this.createBookingForm.confirm = false;
       this.goCheckIn(this.createBookingForm.newBooking);

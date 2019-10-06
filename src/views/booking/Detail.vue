@@ -110,6 +110,7 @@ import { getBooking, updateBooking, getBookingPrice } from "../../services/booki
 import { getUser } from "../../services/user";
 import { updatePayment, sendPaymentToSunmi, openDrawer, bookingPrint, refundPaymentToSunmi } from "../../services/payment";
 import { sync } from "vuex-pathify";
+import { helpers } from "../../utils/helper";
 
 export default {
   data() {
@@ -226,9 +227,10 @@ export default {
       this.checkInForm.loading = true;
       const { bandIds } = this.checkInForm;
       const { id } = this.booking;
-      const res = await updateBooking({ id, bandIds }).catch(err => {
-        this.checkInForm.loading = false;
-      });
+      const [err, res] = await helpers.runAsync(updateBooking({ id, bandIds }));
+      if (err) {
+        return (this.checkInForm.loading = false);
+      }
       await bookingPrint({ id });
       this.checkInForm.loading = false;
       this.getBooking({ id });
@@ -236,9 +238,10 @@ export default {
     async finishBooking() {
       const { id } = this.booking;
       this.finishForm.loading = true;
-      await updateBooking({ id, status: "FINISHED" }).catch(err => {
-        this.finishForm.loading = false;
-      });
+      const [err, res] = await helpers.runAsync(updateBooking({ id, status: "FINISHED" }));
+      if (err) {
+        return (this.finishForm.loading = false);
+      }
       this.finishForm.loading = false;
       this.finishForm.confirm = false;
       this.getBooking({ id });
@@ -247,10 +250,11 @@ export default {
       this.extendForm.loading = true;
       const { id } = this.booking;
       const { extendPaymentGateway: paymentGateway, extendHours: hours } = this;
+      const [err, res] = await helpers.runAsync(updateBooking({ id, hours, paymentGateway: paymentGateway == "credit" ? null : paymentGateway }));
+      if (err) {
+        return (this.extendForm.loading = false);
+      }
 
-      const res = await updateBooking({ id, hours, paymentGateway: paymentGateway == "credit" ? null : paymentGateway }).catch(err => {
-        this.extendForm.loading = false;
-      });
       this.booking = res.data;
       this.extendForm.loading = false;
 
@@ -280,9 +284,10 @@ export default {
     async startService() {
       const { id } = this.booking;
       this.startServiceForm.loading = true;
-      const res = await updateBooking({ id, status: "IN_SERVICE" }).catch(err => {
-        this.startServiceForm.loading = false;
-      });
+      const [err, res] = await helpers.runAsync(updateBooking({ id, status: "IN_SERVICE" }));
+      if (err) {
+        return (this.startServiceForm.loading = false);
+      }
       this.startServiceForm.loading = false;
       this.startServiceForm.confirm = false;
       this.getBooking({ id: this.booking.id });
@@ -290,9 +295,10 @@ export default {
     async refundBooking() {
       const { id } = this.booking;
       this.refundForm.loading = true;
-      const res = await updateBooking({ id, status: "CANCELED" }).catch(err => {
-        this.refundForm.loading = false;
-      });
+      const [err, res] = await helpers.runAsync(updateBooking({ id, status: "CANCELED" }));
+      if (err) {
+        return (this.refundForm.loading = false);
+      }
       this.refundForm.loading = false;
       this.refundForm.confirm = false;
       await this.getBooking({ id });
@@ -311,10 +317,10 @@ export default {
           throw new Error("退款失败：" + JSON.stringify(sunmiRefundResult.resultMsg));
         }
       }
-
-      await updatePayment({ id, paid: true }).catch(err => {
-        this.refundManualForm.loading = false;
-      });
+      const [err, res] = await helpers.runAsync(updatePayment({ id, paid: true }));
+      if (err) {
+        return (this.refundManualForm.loading = false);
+      }
 
       this.refundManualForm.loading = false;
       this.refundManualForm.confirm = false;
@@ -327,9 +333,10 @@ export default {
     async payBookingManual() {
       const { id } = this.payManuallForm.payment;
       this.payManuallForm.loading = true;
-      const res = await updatePayment({ id, paid: true }).catch(err => {
-        this.payManuallForm.loading = false;
-      });
+      const [err, res] = await helpers.runAsync(updatePayment({ id, paid: true }));
+      if (err) {
+        return (this.payManuallForm.loading = false);
+      }
       this.payManuallForm.loading = false;
       this.payManuallForm.confirm = false;
       this.getBooking({ id: this.booking.id });
@@ -338,10 +345,10 @@ export default {
       if (this.extendForm.loading_price || !this.booking.id || this.booking.hours >= 3) return;
       this.extendForm.loading_price = true;
       const { extendPaymentGateway: paymentGateway, extendHours: hours } = this;
-
-      const res = await getBookingPrice({ ...this.booking, hours }).catch(err => {
-        this.extendForm.loading_price = false;
-      });
+      const [err, res] = await helpers.runAsync(getBookingPrice({ ...this.booking, hours }));
+      if (err) {
+        return (this.extendForm.loading_price = false);
+      }
       this.extendForm.price = res.data.price - this.booking.price;
       this.extendForm.loading_price = false;
     },
@@ -361,9 +368,10 @@ export default {
       const { payments } = this.booking;
       const [payment] = payments;
       const { id } = payment;
-      const res = await updatePayment({ paid: true, id }).catch(err => {
-        this.extendForm.loading_confirmPayment = false;
-      });
+      const [err, res] = await helpers.runAsync(updatePayment({ paid: true, id }));
+      if (err) {
+        return (this.extendForm.loading_confirmPayment = false);
+      }
       this.extendForm.confirm_payment = false;
       this.extendForm.loading_confirmPayment = false;
       this.extendForm.confirm = false;

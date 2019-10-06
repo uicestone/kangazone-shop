@@ -70,7 +70,7 @@ export interface PaymentResponse {
   merchantId: string; //商户号
 }
 
-export const sendPaymentToSunmi = (args: PaymentParams): Promise<PaymentResponse> =>
+export const sendPaymentToSunmi = async (args: PaymentParams): Promise<PaymentResponse> =>
   new Promise((resolve, reject) => {
     try {
       jsBridageBus.once("javaCall", data => {
@@ -89,7 +89,7 @@ export const sendPaymentToSunmi = (args: PaymentParams): Promise<PaymentResponse
       reject(error);
     }
   });
-export const refundPaymentToSunmi = (args: PaymentParams): Promise<PaymentResponse> =>
+export const refundPaymentToSunmi = async (args: PaymentParams): Promise<PaymentResponse> =>
   new Promise((resolve, reject) => {
     try {
       jsBridageBus.once("javaCall", data => {
@@ -109,7 +109,7 @@ export const refundPaymentToSunmi = (args: PaymentParams): Promise<PaymentRespon
     }
   });
 
-export const updatePayment = ({ id, paid }) => {
+export const updatePayment = async ({ id, paid }) => {
   const data = _.omitBy({ paid, status }, _.isNil);
 
   return axios.request({ url: `/payment/${id}`, method: "PUT", data });

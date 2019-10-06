@@ -9,14 +9,24 @@ export const axios = Axios.create({
   baseURL: config.VUE_APP_API_ENDPOINT
 });
 
-axios.interceptors.request.use(config => {
-  const token = get(store, "state.auth.token");
-  if (token) {
-    config.headers = { ...config.headers, Authorization: `Bearer ${token}` };
-  }
+axios.interceptors.request.use(
+  config => {
+    const token = get(store, "state.auth.token");
+    if (token) {
+      config.headers = { ...config.headers, Authorization: `Bearer ${token}` };
+    }
 
-  return config;
-});
+    return config;
+  },
+  err => {
+    Vue.notify({
+      group: "api",
+      type: "error",
+      text: "网络错误",
+      duration: 2000
+    });
+  }
+);
 
 axios.interceptors.response.use(
   res => {
@@ -28,7 +38,15 @@ axios.interceptors.response.use(
 
     if (statusCode) {
       if (statusCode == 401) {
-        logout();
+        return logout();
+      }
+      if (statusCode == 500) {
+        return Vue.notify({
+          group: "api",
+          type: "error",
+          text: "服务器内部错误",
+          duration: 2000
+        });
       }
     }
     if (message) {

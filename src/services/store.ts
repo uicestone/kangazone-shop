@@ -1,13 +1,13 @@
 import { axios } from "../utils/axios";
 
-export const findStores = () =>
+export const findStores = async () =>
   axios.request({
     url: "/store"
   });
 
-export const getConfigs = () => axios.request({ url: "/config" });
+export const getConfigs = async () => axios.request({ url: "/config" });
 
-export const getStats = () =>
+export const getStats = async () =>
   axios.request({
     url: "/stats"
   });
