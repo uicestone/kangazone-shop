@@ -8,9 +8,10 @@
 import { sync } from "vuex-pathify";
 import { getAuthUser, logout } from "./services";
 import { findStores, getConfigs } from "./services/store";
-import { jsBridageBus } from "./services/payment";
+import { jsBridageBus, jsGetAllUSBDevices } from "./services/payment";
 export default {
   created() {
+    jsGetAllUSBDevices();
     this.getAuthUser();
     this.getStore();
     this.getConfig();
