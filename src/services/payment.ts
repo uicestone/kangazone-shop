@@ -135,3 +135,13 @@ export const bookingPrint = async ({ id }) => {
     }
   }
 };
+
+export const jsGetAllUSBDevices = () => {
+  try {
+    $App.jsGetAllUSBDevices();
+  } catch (error) {
+    if (config.IS_PROD) {
+      throw new Error(error);
+    }
+  }
+};
