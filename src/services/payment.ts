@@ -145,3 +145,13 @@ export const jsGetAllUSBDevices = () => {
     }
   }
 };
+
+export const jsGetDevice = () => {
+  try {
+    $App.jsGetDevice(config.VENDERID);
+  } catch (error) {
+    if (config.IS_PROD) {
+      throw new Error(error);
+    }
+  }
+};
