@@ -28,6 +28,7 @@
       v-text-field(v-if="['print'].includes(type)" label="内容" v-model="printForm.content" clearable)
       v-select(v-if="['print'].includes(type)" label="编码" v-model="printForm.encodingType" :items="printForm.encoding" clearable)
       v-btn.mt-5(v-if="['print'].includes(type)" block color="success" @click="print") 打印
+      v-btn.mt-5(v-if="['print'].includes(type)" block color="error" @click="connectOnly") 只连接不打印
       v-btn.mt-5(v-if="['print'].includes(type)" block color="warning" @click="getUSBDevices") 获取usb设备
       p(v-if="['print'].includes(type)") {{printForm.msg}}
 
@@ -38,7 +39,7 @@
 
 <script>
 import { _ } from "../../utils/lodash";
-import { sendPaymentToSunmi } from "../../services/payment";
+import { sendPaymentToSunmi, jsGetDevice } from "../../services/payment";
 // import EscPosEncoder from "esc-pos-encoder";
 import { Buffer } from "buffer/";
 import Vue from "vue";
@@ -134,6 +135,9 @@ export default {
     getUSBDevices() {
       const res = $App.jsGetAllUSBDevices();
       this.printForm.msg = res;
+    },
+    connectOnly() {
+      jsGetDevice(this.printForm.venderId);
     },
     async print() {
       const { data: receiptData } = await getBookingReceiptData({ id: "5d754000dd17bef3057aaf1f" });
