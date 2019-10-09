@@ -15,6 +15,7 @@ Vue.prototype.$_ = _;
 
 Vue.config.productionTip = false;
 Vue.config.errorHandler = (err, vm, info) => {
+  console.error(err);
   Vue.notify({
     group: "api",
     type: "error",
