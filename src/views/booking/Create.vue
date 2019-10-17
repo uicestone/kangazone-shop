@@ -244,33 +244,8 @@ export default {
   watch: {
     "createBookingForm.form": {
       async handler(newVal, oldVal) {
-        if (!oldVal || this.createBookingForm.loading_price) return;
-        this.createBookingForm.loading_price = true;
-        let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
-        const { id: customerId } = this.createBookingForm.user;
-        const { slug } = this.createBookingForm.coupon || {};
-        const { paymentGateway } = this;
-
-        const [err, res] = await helpers.runAsync(
-          getBookingPrice({
-            store: this.currentStore.id,
-            type,
-            date,
-            hours,
-            coupon: slug,
-            customer: customerId,
-            checkInAt: moment().format("HH:mm"),
-            membersCount,
-            socksCount,
-            useCredit: paymentGateway == "credit",
-            paymentGateway
-          })
-        );
-        if (err) {
-          return (this.createBookingForm.loading_price = false);
-        }
-        this.createBookingForm.price = res.data.price;
-        this.createBookingForm.loading_price = false;
+        if (!oldVal) return;
+        this.updatePrice();
       },
       immediate: true,
       deep: true
@@ -281,6 +256,7 @@ export default {
       this.createBookingForm.form.membersCount = membersCount || 1;
       this.createBookingForm.fixedHours = fixedHours || false;
       this.createBookingForm.fixedMembersCount = fixedMembersCount || false;
+      this.updatePrice();
     },
     async "searchUserForm.searchText"(val) {
       const { searchText, loading } = this.searchUserForm;
@@ -310,6 +286,35 @@ export default {
     }
   },
   methods: {
+    async updatePrice() {
+      if (this.createBookingForm.loading_price) return;
+      this.createBookingForm.loading_price = true;
+      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
+      const { id: customerId } = this.createBookingForm.user;
+      const { slug } = this.createBookingForm.coupon || {};
+      const { paymentGateway } = this;
+
+      const [err, res] = await helpers.runAsync(
+        getBookingPrice({
+          store: this.currentStore.id,
+          type,
+          date,
+          hours,
+          coupon: slug,
+          customer: customerId,
+          checkInAt: moment().format("HH:mm"),
+          membersCount,
+          socksCount,
+          useCredit: paymentGateway == "credit",
+          paymentGateway
+        })
+      );
+      if (err) {
+        return (this.createBookingForm.loading_price = false);
+      }
+      this.createBookingForm.price = res.data.price;
+      this.createBookingForm.loading_price = false;
+    },
     async refreshSearchUser() {
       this.step = "searchUser";
       const { id } = this.searchUserForm.user;
