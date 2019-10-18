@@ -21,17 +21,20 @@
         v-card(@click="goBookingList({status: 'IN_SERVICE'})" :elevation="5")
           div.number {{ stats.checkedInCount }}
           div.label 场内人数
+            div.hint 点击查看活跃订单
         v-card(@click="goBookingList({due: true})" :elevation="5")
           div.number {{ stats.dueCount }}
           div.label 即将超时 
+            div.hint 点击查看即将超时订单
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 非预约
       div.flex.text.justify-between.items-center.pt-4.align-stretch.flex-1
         v-card(@click="goBookingList({date: today})" :elevation="5")
-          div.number {{ stats.todayCount }}
+          div.number {{ stats.customerCount }}
           div.label 当日人数
+            div.hint 点击查看当日订单
         v-card(:elevation="5")
-          div.number ￥{{ stats.todayAmount.toFixed(0) }}
+          div.number ￥{{ stats.paidAmount.toFixed(0) }}
           div.label 当日流水 
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-card-actions 预约入场
@@ -106,6 +109,9 @@ export default {
     font-size 1rem
     font-weight normal
     flex 1
+    .hint
+      font-size 0.4rem
+      opacity 0.6
   &.action
     .v-card__actions
       justify-content center

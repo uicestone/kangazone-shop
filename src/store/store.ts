@@ -10,8 +10,8 @@ const state = {
   stats: {
     checkedInCount: 0,
     dueCount: 0,
-    todayCount: 0,
-    todayAmount: 0
+    customerCount: 0,
+    paidAmount: 0
   }
 };
 
