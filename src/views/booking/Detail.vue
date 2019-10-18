@@ -267,6 +267,7 @@ export default {
           if (paymentRes.resultCode !== "T00") {
             throw new Error(`${paymentRes.resultCode}: ${paymentRes.resultMsg}`);
           }
+          await updatePayment({ id: orderId, paid: true });
           this.extendForm.confirm = false;
           break;
         case "cash":
