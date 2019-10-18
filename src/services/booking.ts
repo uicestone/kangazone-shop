@@ -78,3 +78,7 @@ export const updateBooking = async ({ id, bandIds, status, hours, paymentGateway
 export const getBookingReceiptData = async ({ id }) => {
   return axios.request<string>({ url: `/booking/${id}/receipt-data` });
 };
+
+export const getStatseceiptData = async () => {
+  return axios.request<string>({ url: `/stats-receipt-data` });
+};

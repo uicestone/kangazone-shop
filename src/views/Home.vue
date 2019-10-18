@@ -3,6 +3,8 @@
     v-app-bar.flex-none(color="secondary")
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
       v-toolbar-title 概况
+      .flex.justify-end
+        v-btn(@click="printReceipt") 打印盘点小票
     v-navigation-drawer(v-model="drawer" bottom absolute height="auto")
       v-list-item
         v-list-item-content
@@ -48,6 +50,7 @@ import { sync } from "vuex-pathify";
 import { logout } from "../services/auth";
 import { getStats } from "../services/store";
 import { moment } from "../utils/moment";
+import { statsReceiptPrint } from "../services/payment";
 // @ is an alias to /src
 export default {
   name: "home",
@@ -65,6 +68,9 @@ export default {
     this.getStats();
   },
   methods: {
+    async printReceipt() {
+      await statsReceiptPrint();
+    },
     async getStats() {
       const res = await getStats();
       this.stats = res.data;

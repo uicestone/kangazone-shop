@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { axios } from "../utils/axios";
 import { _ } from "../utils/lodash";
-import { getBookingReceiptData } from "./booking";
+import { getBookingReceiptData, getStatseceiptData } from "./booking";
 import { config } from "../../config";
 
 export const jsBridageBus = new EventEmitter();
@@ -128,6 +128,17 @@ export const openDrawer = () => {
 export const bookingPrint = async ({ id }) => {
   try {
     const { data: receiptData } = await getBookingReceiptData({ id });
+    $App.jsPrint(config.VENDERID, receiptData);
+  } catch (error) {
+    if (config.IS_PROD) {
+      throw new Error(error);
+    }
+  }
+};
+
+export const statsReceiptPrint = async () => {
+  try {
+    const { data: receiptData } = await getStatseceiptData();
     $App.jsPrint(config.VENDERID, receiptData);
   } catch (error) {
     if (config.IS_PROD) {
