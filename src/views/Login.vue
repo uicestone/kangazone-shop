@@ -4,8 +4,8 @@
     div.flex.justify-center.items-center.h-screen
       v-card.p-10
         v-form.w-64(v-model="form.valid" ref="form" @submit.native.prevent)
-          v-text-field(label="请输入用户名" v-model="form.username" required :rules="[v => !!v || '请输入用户名']")
-          v-text-field(label="请输入密码" v-model="form.password"  required  type="password" :rules="[v => !!v || '请输入密码']")
+          v-text-field(label="请输入用户名" v-model="form.username" required :rules="[v => !!v || '请输入用户名']" autocomplete="off")
+          v-text-field(label="请输入密码" v-model="form.password"  required  type="password" :rules="[v => !!v || '请输入密码']" autocomplete="off")
           v-btn.w-full(color="primary" :disabled="!form.valid" @click="login") 登录 
 </template>
 

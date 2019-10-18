@@ -10,7 +10,7 @@
           div(class="flex md:flex-row")
             v-select(label="类型" v-model="searchForm.type" :items="configs.bookingTypes" item-text="label" item-value="value" clearable)
             v-select(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
-            v-text-field(label="用户手机/卡号" v-model="searchForm.customerKeyword" clearable)        
+            v-text-field(label="用户手机/卡号" v-model="searchForm.customerKeyword" clearable autocomplete="off")        
 
       div.pt-2
         v-data-table.p-3(

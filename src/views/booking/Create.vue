@@ -11,6 +11,7 @@
           v-card.py-4.px-7.ml-2
             v-form(ref="searchUserForm" @submit.native.prevent)
               v-autocomplete(
+                autocomplete="off"
                 :label="searchUserForm.user.id ? '手机号' : '部分匹配的 手机号/昵称/卡号'" 
                 :clearable="!searchUserForm.user.id"
                 :disabled="!!searchUserForm.user.id"
@@ -41,10 +42,10 @@
                 v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
           v-card.py-4.px-7(v-if="$_.get(searchUserForm, 'user.id')")
             div(v-if="!searchUserForm.user.cardNo && searchUserForm.user.credit")
-              v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number")
+              v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number" autocomplete="off")
               v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
             div
-              v-text-field(label="余额" hide-details  v-model="searchUserForm.user.credit || 0"  disabled)
+              v-text-field(label="余额" hide-details  v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
               v-btn(color="primary" block @click="step = 'topup'") 充值
         //- 充值                     
         v-card.py-4.px-7(v-if="step=='topup'")
@@ -68,8 +69,8 @@
         //- 创建用户
         v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'" @submit.native.prevent)
           v-card.py-4.px-7
-            v-text-field(label="完整的手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number")
-            v-text-field(label="客人的姓名或昵称" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable)
+            v-text-field(label="完整的手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number" autocomplete="off")
+            v-text-field(label="客人的姓名或昵称" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable autocomplete="off")
             v-radio-group(row v-model="createUserForm.gender")
               v-radio(label="男" value="1")
               v-radio(label="女" value="2")
@@ -80,23 +81,23 @@
           v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)
             .flex
               div.items-between.flex.flex-column(style="flex:2")
-                v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']")
-                v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit || 0"  disabled type="number")
+                v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']" autocomplete="off")
+                v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit || 0"  disabled type="number" autocomplete="off")
                 v-menu
                   template(v-slot:activator="{on}")
-                    v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date")
+                    v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date" autocomplete="off")
                   v-date-picker(v-model="createBookingForm.form.date")
               div.pl-5.items-between.flex.flex-column(style="flex:3;width:70%")
                 v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" :disabled="createBookingForm.fixedMembersCount"  @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 人数
                   template(v-slot:append)
-                    v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px")
+                    v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
                 v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount"  @change="i => createBookingForm.form.socksCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 袜子数
                   template(v-slot:append)
-                    v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px")
+                    v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
                 v-btn-toggle.mt-4(v-model="createBookingForm.form.hours"  mandatory)
                   v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 体验券
                   v-btn.px-5(:value=1 text :disabled="createBookingForm.fixedHours") 1小时
@@ -123,7 +124,7 @@
         //- 签到
         v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'" @submit.native.prevent)
           v-card.py-4.px-7
-            v-text-field(v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
+            v-text-field(autocomplete="off" v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
             v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
             v-btn.ml-2(color="warning" @click="handlePrintBookingOnly") 仅打印小票
 
