@@ -246,7 +246,8 @@ export default {
     "createBookingForm.form": {
       async handler(newVal, oldVal) {
         if (!oldVal) return;
-        this.updatePrice();
+        clearTimeout(this.getPriceTimeout);
+        this.getPriceTimeout = this.updatePrice();
       },
       immediate: true,
       deep: true
@@ -264,12 +265,13 @@ export default {
       if (loading || !searchText) return;
       this.searchUserForm.loading = true;
       const [err, res] = await helpers.runAsync(findUser({ keyword: searchText }));
+      this.searchUserForm.loading = false;
+
       if (err) {
         return (this.searchUserForm.loading = false);
       }
 
       this.searchUserForm.items = res.data;
-      this.searchUserForm.loading = false;
     },
     async "searchUserForm.user"(val) {
       const { bookings_loading } = this.searchUserForm;
@@ -310,11 +312,11 @@ export default {
           paymentGateway
         })
       );
+      this.createBookingForm.loading_price = false;
       if (err) {
         return (this.createBookingForm.loading_price = false);
       }
       this.createBookingForm.price = res.data.price;
-      this.createBookingForm.loading_price = false;
     },
     async refreshSearchUser() {
       this.step = "searchUser";
@@ -329,11 +331,11 @@ export default {
       const { id } = this.searchUserForm.user;
       this.topupForm.loading = true;
       const [err, { data: payment }] = await helpers.runAsync(userDeposit({ id, depositLevel, paymentGateway }));
+      this.topupForm.loading = false;
       if (err) {
-        return (this.topupForm.loading = false);
+        return;
       }
       this.topupForm.payment = payment;
-      this.topupForm.loading = false;
       switch (paymentGateway) {
         case "scan":
           const { id: orderId, attach: orderInfo, amount } = payment;
@@ -357,11 +359,11 @@ export default {
       this.topupForm.loading_confirm = true;
       const { id } = this.topupForm.payment;
       const [err, res] = await helpers.runAsync(updatePayment({ paid: true, id }));
+      this.topupForm.loading_confirm = false;
       if (err) {
-        return (this.topupForm.loading_confirm = false);
+        return;
       }
 
-      this.topupForm.loading_confirm = false;
       this.topupForm.confirm = false;
       this.refreshSearchUser();
     },
@@ -370,11 +372,11 @@ export default {
       const { cardNo } = this.searchUserForm;
       const { id } = this.searchUserForm.user;
       const [err, res] = await helpers.runAsync(updateUser({ cardNo, id }));
+      this.searchUserForm.bindCard_loading = false;
       if (err) {
-        return (this.searchUserForm.bindCard_loading = false);
+        return;
       }
       this.searchUserForm.user.cardNo = res.data.cardNo;
-      this.searchUserForm.bindCard_loading = false;
     },
     goCreateUser() {
       Object.assign(this.createUserForm, { mobile: "", username: "", gender: "male" });
@@ -415,10 +417,10 @@ export default {
           paymentGateway: paymentGateway == "credit" ? null : paymentGateway
         })
       );
-      if (err) {
-        return (this.createBookingForm.loading_createBooking = false);
-      }
       this.createBookingForm.loading_createBooking = false;
+      if (err) {
+        return;
+      }
       this.createBookingForm.newBooking = res.data;
 
       switch (paymentGateway) {
@@ -451,12 +453,12 @@ export default {
       } = this.checkInForm;
 
       const [err, res] = await helpers.runAsync(updateBooking({ id, bandIds }));
+      this.checkInForm.loading = false;
       if (err) {
         return (this.checkInForm.loading = false);
       }
 
       await bookingPrint({ id });
-      this.checkInForm.loading = false;
       this.$router.push({ name: "bookingDetail", params: { id } });
     },
     async handlePrintBookingOnly() {
@@ -475,11 +477,11 @@ export default {
       const { id } = payment;
 
       const [err, res] = await helpers.runAsync(updatePayment({ paid: true, id }));
+      this.createBookingForm.loading_confirm = false;
       if (err) {
-        return (this.createBookingForm.loading_confirm = false);
+        return;
       }
 
-      this.createBookingForm.loading_confirm = false;
       this.createBookingForm.confirm = false;
       this.goCheckIn(this.createBookingForm.newBooking);
     },

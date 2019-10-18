@@ -228,21 +228,21 @@ export default {
       const { bandIds } = this.checkInForm;
       const { id } = this.booking;
       const [err, res] = await helpers.runAsync(updateBooking({ id, bandIds }));
+      this.checkInForm.loading = false;
       if (err) {
-        return (this.checkInForm.loading = false);
+        return;
       }
       await bookingPrint({ id });
-      this.checkInForm.loading = false;
       this.getBooking({ id });
     },
     async finishBooking() {
       const { id } = this.booking;
       this.finishForm.loading = true;
       const [err, res] = await helpers.runAsync(updateBooking({ id, status: "FINISHED" }));
-      if (err) {
-        return (this.finishForm.loading = false);
-      }
       this.finishForm.loading = false;
+      if (err) {
+        return;
+      }
       this.finishForm.confirm = false;
       this.getBooking({ id });
     },
@@ -251,12 +251,12 @@ export default {
       const { id } = this.booking;
       const { extendPaymentGateway: paymentGateway, extendHours: hours } = this;
       const [err, res] = await helpers.runAsync(updateBooking({ id, hours, paymentGateway: paymentGateway == "credit" ? null : paymentGateway }));
+      this.extendForm.loading = false;
       if (err) {
-        return (this.extendForm.loading = false);
+        return;
       }
 
       this.booking = res.data;
-      this.extendForm.loading = false;
 
       switch (paymentGateway) {
         case "scan":
@@ -285,10 +285,11 @@ export default {
       const { id } = this.booking;
       this.startServiceForm.loading = true;
       const [err, res] = await helpers.runAsync(updateBooking({ id, status: "IN_SERVICE" }));
-      if (err) {
-        return (this.startServiceForm.loading = false);
-      }
       this.startServiceForm.loading = false;
+
+      if (err) {
+        return;
+      }
       this.startServiceForm.confirm = false;
       this.getBooking({ id: this.booking.id });
     },
@@ -296,10 +297,10 @@ export default {
       const { id } = this.booking;
       this.refundForm.loading = true;
       const [err, res] = await helpers.runAsync(updateBooking({ id, status: "CANCELED" }));
-      if (err) {
-        return (this.refundForm.loading = false);
-      }
       this.refundForm.loading = false;
+      if (err) {
+        return;
+      }
       this.refundForm.confirm = false;
       await this.getBooking({ id });
     },
@@ -318,11 +319,12 @@ export default {
         }
       }
       const [err, res] = await helpers.runAsync(updatePayment({ id, paid: true }));
+      this.refundManualForm.loading = false;
+
       if (err) {
-        return (this.refundManualForm.loading = false);
+        return;
       }
 
-      this.refundManualForm.loading = false;
       this.refundManualForm.confirm = false;
       this.getBooking({ id: this.booking.id });
     },
@@ -334,10 +336,11 @@ export default {
       const { id } = this.payManuallForm.payment;
       this.payManuallForm.loading = true;
       const [err, res] = await helpers.runAsync(updatePayment({ id, paid: true }));
-      if (err) {
-        return (this.payManuallForm.loading = false);
-      }
       this.payManuallForm.loading = false;
+
+      if (err) {
+        return;
+      }
       this.payManuallForm.confirm = false;
       this.getBooking({ id: this.booking.id });
     },
@@ -346,11 +349,11 @@ export default {
       this.extendForm.loading_price = true;
       const { extendPaymentGateway: paymentGateway, extendHours: hours } = this;
       const [err, res] = await helpers.runAsync(getBookingPrice({ ...this.booking, hours }));
+      this.extendForm.loading_price = false;
       if (err) {
-        return (this.extendForm.loading_price = false);
+        return;
       }
       this.extendForm.price = res.data.price - this.booking.price;
-      this.extendForm.loading_price = false;
     },
     async getBooking({ id }) {
       const res = await getBooking({ id });
@@ -369,11 +372,12 @@ export default {
       const [payment] = payments;
       const { id } = payment;
       const [err, res] = await helpers.runAsync(updatePayment({ paid: true, id }));
+      this.extendForm.loading_confirmPayment = false;
+
       if (err) {
-        return (this.extendForm.loading_confirmPayment = false);
+        return;
       }
       this.extendForm.confirm_payment = false;
-      this.extendForm.loading_confirmPayment = false;
       this.extendForm.confirm = false;
       this.getBooking({ id: this.booking.id });
     }
