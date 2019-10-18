@@ -12,9 +12,9 @@
             v-form(ref="searchUserForm" @submit.native.prevent)
               v-autocomplete(
                 autocomplete="off"
-                :label="searchUserForm.user.id ? '手机号' : '部分匹配的 手机号/昵称/卡号'" 
-                :clearable="!searchUserForm.user.id"
-                :disabled="!!searchUserForm.user.id"
+                :label="$_.get(searchUserForm,'user.id') ? '手机号' : '部分匹配的 手机号/昵称/卡号'" 
+                :clearable="!$_.get(searchUserForm,'user.id')"
+                :disabled="!!$_.get(searchUserForm,'user.id')"
                 autofocus
                 hide-no-data
                 v-model="searchUserForm.user" 
