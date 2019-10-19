@@ -1,13 +1,13 @@
 <template lang="pug">
-  div.flex.flex-column
+  .flex.flex-column
     v-app-bar.flex-none(color="secondary")
       v-app-bar-nav-icon(@click="handleBack")
         v-icon mdi-chevron-left
       v-toolbar-title 创建/选择预约
     v-container.flex.justify-center.items-center.flex-1
-      div.flex-1
+      .flex-1
         //- 搜索用户
-        div.flex.justify-center.flex-row-reverse(v-if="step == 'searchUser'" )
+        .flex.justify-center.flex-row-reverse(v-if="step == 'searchUser'" )
           v-card.py-4.px-7.ml-2
             v-form(ref="searchUserForm" @submit.native.prevent)
               v-autocomplete(
@@ -24,7 +24,7 @@
                 item-text="mobile"
                 :item-value="item => item"
                 required)
-              div.flex.justify-center.align-center
+              .flex.justify-center.align-center
                 v-btn(color="primary" dark v-if="!userValid" @click="goCreateUser") 创建用户
                 v-overflow-btn.mr-4(
                   type="number"
@@ -45,7 +45,8 @@
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number" autocomplete="off")
               v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
             div
-              v-text-field(label="余额" hide-details  v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
+              v-text-field(label="卡号" v-if="searchUserForm.user.cardNo" v-model="searchUserForm.user.cardNo" disabled autocomplete="off") 
+              v-text-field(label="余额" v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
               v-btn(color="primary" block @click="step = 'topup'") 充值
         //- 充值                     
         v-card.py-4.px-7(v-if="step=='topup'")
@@ -62,8 +63,8 @@
           v-btn.mt-4(color="primary" block @click="handleTopup" :loading="topupForm.loading") 确认充值
           v-bottom-sheet(v-model="topupForm.confirm" persistent)
             v-sheet.px-10.flex.items-center(height="100px")
-              div.w-full
-                div.mr-5.text-lg.my-0
+              .w-full
+                .mr-5.text-lg.my-0
                   span.text-orange-600 ￥{{topupForm.depositLevel}}元
                 v-btn.w-full(block color="primary"  @click="comfirmTopupPayment" :loading="topupForm.loading_confirm") 确认收款完成
         //- 创建用户
@@ -80,14 +81,14 @@
         v-card.py-4.px-7(v-if="step == 'createBooking'")
           v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)
             .flex
-              div.items-between.flex.flex-column(style="flex:2")
+              .items-between.flex.flex-column(style="flex:2")
                 v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']" autocomplete="off")
                 v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit || 0"  disabled type="number" autocomplete="off")
                 v-menu
                   template(v-slot:activator="{on}")
                     v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date" autocomplete="off")
                   v-date-picker(v-model="createBookingForm.form.date")
-              div.pl-5.items-between.flex.flex-column(style="flex:3;width:70%")
+              .pl-5.items-between.flex.flex-column(style="flex:3;width:70%")
                 v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" :disabled="createBookingForm.fixedMembersCount"  @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 人数
@@ -105,19 +106,20 @@
                   v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
                 v-select(:items="coupons" clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
                 //- v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
-            v-bottom-navigation.mt-2(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none")
-              v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
-                span {{item.label}}
-                v-icon {{item.icon}}
-            div.flex.mt-3.justify-space-between.align-end
-              div.mr-5.text-lg.my-0
-                span.text-orange-600 ￥{{createBookingForm.price}}元
-                span.ml-2.text-orange-400.text-sm 会员卡: {{creditPrice}}元 / 现场支付: {{createBookingForm.price-creditPrice}}元
-              v-btn(color="primary" :disabled="!createBookingForm.valid"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
+            .flex(style="margin-top:-12px;margin-bottom:-4px")
+              v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
+                v-btn.px-0(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
+                  span {{item.label}}
+                  v-icon {{item.icon}}
+              .flex.mt-0.justify-end.align-end(style="height:56px")
+                .mr-5.text-lg.my-0
+                  span.text-orange-600 收款 ￥{{createBookingForm.price}}
+                  .text-orange-400.text-sm 会员卡: ￥{{creditPrice}} / 现场支付: ￥{{createBookingForm.price-creditPrice}}
+                v-btn(color="primary" :disabled="!createBookingForm.valid"  @click="createBooking" :loading="createBookingForm.loading_createBooking || this.createBookingForm.loading_price") 创建订单
             v-bottom-sheet(v-model="createBookingForm.confirm" persistent)
               v-sheet.px-10.flex.items-center(height="100px")
-                div.w-full
-                  div.mr-5.text-lg.my-0
+                .w-full
+                  .mr-5.text-lg.my-0
                     span.text-orange-600 ￥{{createBookingForm.price}}元
                     span.ml-2.text-orange-400.text-sm 会员卡: {{creditPrice}}元 / 现场支付: {{createBookingForm.price-creditPrice}}元
                   v-btn.w-full(block color="primary"  @click="comfirmPayment" :loading="createBookingForm.loading_confirm") 确认收款完成
@@ -262,7 +264,7 @@ export default {
     },
     async "searchUserForm.searchText"(val) {
       const { searchText, loading } = this.searchUserForm;
-      if (loading || !searchText) return;
+      if (loading || !searchText || searchText.length < 4) return;
       this.searchUserForm.loading = true;
       const [err, res] = await helpers.runAsync(findUser({ keyword: searchText }));
       this.searchUserForm.loading = false;
