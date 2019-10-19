@@ -14,9 +14,12 @@
             | 技术支持：诗序软件
       v-divider
       v-list(dense nav)
+        v-list-item
+          v-icon mdi-account
+          span.ml-1 {{ user.name }}
         v-list-item(@click="logout")
           v-icon mdi-logout
-          span 退出登录
+          span.ml-1 退出登录
 
     v-container.flex.flex-column.stats.flex-1
       div.flex.text.justify-between.items-center.align-stretch.flex-1
@@ -63,6 +66,7 @@ export default {
     };
   },
   computed: {
+    user: sync("auth/user"),
     token: sync("auth/token"),
     stats: sync("store/stats")
   },
