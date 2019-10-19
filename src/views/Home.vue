@@ -4,7 +4,7 @@
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
       v-toolbar-title 概况
       .flex.justify-end
-        v-btn(@click="printReceipt") 打印盘点小票
+        v-btn(@click="printReceipt" color="secondary" height="28px" elevation="0") 盘点小票
     v-navigation-drawer(v-model="drawer" bottom absolute height="auto")
       v-list-item
         v-list-item-content
@@ -29,7 +29,8 @@
           div.label 即将超时 
             div.hint 点击查看即将超时订单
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
-          v-card-actions 非预约
+          v-icon mdi-location-enter
+          v-card-actions 入场登记
       div.flex.text.justify-between.items-center.pt-4.align-stretch.flex-1
         v-card(@click="goBookingList({date: today})" :elevation="5")
           div.number {{ stats.customerCount }}
@@ -38,8 +39,9 @@
         v-card(:elevation="5")
           div.number ￥{{ stats.paidAmount.toFixed(0) }}
           div.label 当日流水 
-        v-card.action.primary(@click="goBookingCreate" :elevation="5")
-          v-card-actions 预约入场
+        v-card.action.primary.disabled(@click="goCheckout" :elevation="5")
+          v-icon mdi-location-exit
+          v-card-actions 出场登记
     
 
     
@@ -86,6 +88,9 @@ export default {
         name: "bookingCreate"
       });
     },
+    goCheckout() {
+      alert("出场登记功能暂未上线");
+    },
     logout() {
       logout();
     }
@@ -119,7 +124,9 @@ export default {
       font-size 0.4rem
       opacity 0.6
   &.action
+    &.disabled
+      opacity 0.5
     .v-card__actions
       justify-content center
-      font-size 2rem
+      font-size 1.75rem
 </style>
