@@ -421,12 +421,15 @@ export default {
       if (err) {
         return;
       }
+      const { payments, price, id: businessId } = res.data;
+      const [payment] = payments;
       this.createBookingForm.newBooking = res.data;
+      if (!payment) {
+        return this.goCheckIn(this.createBookingForm.newBooking);
+      }
 
       switch (paymentGateway) {
         case "scan":
-          const { payments, price, id: businessId } = res.data;
-          const [payment] = payments;
           const { id: orderId, attach: orderInfo, amount } = payment;
           const paymentRes = await sendPaymentToSunmi({ amount, orderId, businessId, orderInfo });
           if (paymentRes.resultCode !== "T00") {

@@ -84,7 +84,9 @@ export const sendPaymentToSunmi = async (args: PaymentParams): Promise<PaymentRe
         ...args
       };
       //@ts-ignore
-      $App.jsCallAndroid(JSON.stringify(params));
+      try {
+        $App.jsCallAndroid(JSON.stringify(params));
+      } catch (error) {}
     } catch (error) {
       reject(error);
     }
