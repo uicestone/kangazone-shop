@@ -221,7 +221,7 @@ export default {
   },
   computed: {
     paymentGateway() {
-      if (this.createBookingForm.user.credit > this.createBookingForm.price || this.createBookingForm.form.hours == 0) {
+      if (this.createBookingForm.user.credit > this.createBookingForm.price) {
         return "credit";
       }
       return this.createBookingForm.form.paymentGateway;
