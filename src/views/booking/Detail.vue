@@ -1,6 +1,6 @@
 <template lang="pug">
-  .booking-detail
-    v-app-bar(color="secondary")
+  .booking-detail.flex.flex-column
+    v-app-bar(color="secondary" style="flex:0")
         v-app-bar-nav-icon(@click="$router.go(-1)")
           v-icon mdi-chevron-left
         v-toolbar-title 预约详情
@@ -32,7 +32,8 @@
               v-list-item-action {{configs.bookingStatusMap[booking.status]}}
             v-list-item
               v-list-item-content 时长
-              v-list-item-action {{booking.hours}} 小时
+              v-list-item-action(v-if="booking.hours") {{booking.hours}} 小时
+              v-list-item-action(v-else) 畅玩
             v-list-item
               v-list-item-content 袜子数
               v-list-item-action {{booking.socksCount}}
@@ -48,8 +49,9 @@
           //-   v-sheet.px-10.flex.items-center(height="100px")
           //-     v-btn.w-full(block color="primary"  @click="finishBooking" :loading="finishForm.loading" ) 确认完成
           
+          v-btn(color="primary" @click="handlePrintBookingOnly") 打印小票
 
-          v-bottom-sheet.mx-2(v-if="['IN_SERVICE'].includes(booking.status)"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
+          v-bottom-sheet.mx-2(v-if="['IN_SERVICE'].includes(booking.status) && booking.hours"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
             template(v-slot:activator="{on}")
               v-btn(color="primary" dark v-on="on" style="height:3rem;width:6rem") 延长时间
             v-sheet.p-10.items-center(height="320px")
@@ -75,18 +77,18 @@
             template(v-slot:activator="{on}")
               v-btn.self-end(color="error" dark v-on="on") 退款并取消
             v-sheet.px-10.flex.items-center(height="100px")
-              v-btn.w-full(block color="error"  @click="refundBooking" :loading="refundForm.loading" ) 确认退款
+              v-btn.w-full(block color="error"  @click="refundBooking" :loading="refundForm.loading" ) 发起退款
           v-bottom-sheet(v-model="refundManualForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
-              v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确认退款
+              v-btn.w-full(block color="error"  @click="refundBookingManual" :loading="refundManualForm.loading" ) 确定已退款
           v-bottom-sheet(v-model="payManuallForm.confirm")
             v-sheet.px-10.flex.items-center(height="100px")
-              v-btn.w-full(block color="error"  @click="payBookingManual" :loading="payManuallForm.loading" ) 确认手动收款
-      //- 绑定手环
-      v-card.p-3.mt-5(v-if="['BOOKED'].includes(booking.status)" )
+              v-btn.w-full(block color="error"  @click="payBookingManual" :loading="payManuallForm.loading" ) 确定已收款
+      //- 绑定的手环
+      v-card.p-3.mt-5(v-if="['BOOKED', 'IN_SERVICE', 'PENDING_REFUND', 'FINISHED'].includes(booking.status)" )
         v-form(v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent )
-          v-text-field(autocomplete="off" v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
-          v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
+          v-text-field(autocomplete="off" v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :disabled="!['BOOKED'].includes(booking.status)" :rules="[v => !!v || '请点击后用读卡器识别手环号']")
+          v-btn(color="primary" v-if="['BOOKED'].includes(booking.status)" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 重新绑定手环并打印小票
       //- 手动收款/退款
       v-data-table.mt-10.pt-4(
            v-if="payablePayments.length > 0"
@@ -96,11 +98,11 @@
           hide-default-footer )
           template(v-slot:item.action="{item}")
             a(small v-if="item.amount<0 && item.gateway == 'scan'"  @click="handleRefundManual(item)") 扫码退款
-            a(small v-if="item.amount<0 && item.gateway == 'cash'"  @click="handleRefundManual(item)") 手动退款
-            a(small v-if="item.amount>0" @click="handlePayManual(item)") 手动收款
+            v-btn(color="primary" small v-if="item.amount<0 && item.gateway == 'cash'"  @click="handleRefundManual(item)") 手动退款
+            v-btn(color="primary" small v-if="item.amount>0" @click="handlePayManual(item)") 手动收款
 
           template(v-slot:item.amount="{item}")
-            p {{Math.abs(item.amount)}}
+            span {{Math.abs(item.amount)}}
         
 
  </template>
@@ -213,7 +215,7 @@ export default {
       return this.extendForm.paymentGateways[this.extendForm.form.paymentGateway].value;
     },
     extendHours() {
-      console.log(this.extendForm.form.hours, this.booking.hours);
+      // console.log(this.extendForm.form.hours, this.booking.hours);
       return Number(this.extendForm.form.hours) + Number(this.booking.hours);
     }
   },
@@ -234,6 +236,10 @@ export default {
       }
       await bookingPrint({ id });
       this.getBooking({ id });
+    },
+    async handlePrintBookingOnly() {
+      const { id } = this.booking;
+      await bookingPrint({ id });
     },
     async finishBooking() {
       const { id } = this.booking;
@@ -386,5 +392,11 @@ export default {
 };
 </script>
 
-<style>
+<style lang="stylus" scoped>
+.v-data-table
+  >>> td, >>> th
+    padding 6px 8px
+    height auto
+  >>> .v-data-table__progress > th
+    padding 0
 </style>

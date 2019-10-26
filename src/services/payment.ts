@@ -163,6 +163,6 @@ export const jsGetDevice = () => {
   try {
     $App.jsGetDevice(config.VENDERID);
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 };

@@ -100,10 +100,10 @@
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
                 v-btn-toggle.mt-4(v-model="createBookingForm.form.hours"  mandatory)
-                  v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 体验券
                   v-btn.px-5(:value=1 text :disabled="createBookingForm.fixedHours") 1小时
                   v-btn.px-5(:value=2 text :disabled="createBookingForm.fixedHours") 2小时
                   v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
+                  v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
                 v-select(:items="coupons" clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
                 //- v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
             .flex(style="margin-top:-12px;margin-bottom:-4px")
@@ -128,7 +128,7 @@
           v-card.py-4.px-7
             v-text-field(autocomplete="off" v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :rules="[v => !!v || '请点击后用读卡器识别手环号']")
             v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
-            v-btn.ml-2(color="warning" @click="handlePrintBookingOnly") 仅打印小票
+            //- v-btn.ml-2(color="warning" @click="handlePrintBookingOnly") 仅打印小票
 
 
 </template>
