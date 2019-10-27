@@ -87,7 +87,7 @@
               .items-between.flex.flex-column(style="flex:2")
                 v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']" autocomplete="off")
                 v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit || 0"  disabled type="number" autocomplete="off")
-                v-menu
+                v-menu(hide-details)
                   template(v-slot:activator="{on}")
                     v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date" autocomplete="off")
                   v-date-picker(v-model="createBookingForm.form.date")
@@ -108,7 +108,7 @@
                   v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
                   v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
                 .flex.items-center
-                  v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" item-text="title" :item-value="i => i.id" v-model="createBookingForm.form.code")                
+                  v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" item-text="title" :item-value="i => i" v-model="createBookingForm.code")                
                   v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
                   v-switch.ml-4(v-model="createBookingForm.useCode" label="券码" hide-details)
             .flex(style="margin-top:14px;margin-bottom:-4px")
@@ -192,14 +192,14 @@ export default {
           hours: 1,
           membersCount: 1,
           socksCount: 0,
-          paymentGateway: "scan",
-          code: null
+          paymentGateway: "scan"
         },
         user: {
           mobile: "",
           credit: 0
         },
         coupon: {},
+        code: {},
         useCode: false,
         fixedHours: false,
         fixedMembersCount: false,
@@ -255,7 +255,9 @@ export default {
       if (this.createBookingForm.coupon.slug) {
         this.createBookingForm.coupon = {};
       }
-      this.createBookingForm.form.code = null;
+      if (this.createBookingForm.code.id) {
+        this.createBookingForm.code = {};
+      }
     },
     "createBookingForm.form": {
       async handler(newVal, oldVal) {
@@ -265,6 +267,12 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    "createBookingForm.code"(val) {
+      const { hours, id } = val || {};
+      this.createBookingForm.form.hours = hours || 0;
+      this.createBookingForm.fixedHours = id ? true : false;
+      this.updatePrice();
     },
     "createBookingForm.coupon"(val) {
       const { fixedHours, fixedMembersCount, hours, membersCount } = val || {};
@@ -306,9 +314,11 @@ export default {
     async updatePrice() {
       if (this.createBookingForm.loading_price) return;
       this.createBookingForm.loading_price = true;
-      let { type, date, checkInAt, membersCount, socksCount, hours, code } = this.createBookingForm.form;
+      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
       const { slug } = this.createBookingForm.coupon || {};
+      const { id: code } = this.createBookingForm.code || {};
+
       const { paymentGateway } = this;
 
       const [err, res] = await helpers.runAsync(
@@ -413,9 +423,10 @@ export default {
     },
     async createBooking() {
       this.createBookingForm.loading_createBooking = true;
-      let { type, date, checkInAt, membersCount, socksCount, hours, code } = this.createBookingForm.form;
+      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
       const { slug } = this.createBookingForm.coupon || {};
+      const { id: code } = this.createBookingForm.code || {};
       const { paymentGateway } = this;
       const [err, res] = await helpers.runAsync(
         createBooking({
