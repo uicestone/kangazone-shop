@@ -10,6 +10,7 @@
         .flex.justify-center.flex-row-reverse(v-if="step == 'searchUser'" )
           v-card.py-4.px-7.ml-2
             v-form(ref="searchUserForm" @submit.native.prevent)
+              v-text-field(label="昵称" v-if="searchUserForm.user.name" v-model="searchUserForm.user.name" disabled autocomplete="off") 
               v-autocomplete(
                 autocomplete="off"
                 :label="$_.get(searchUserForm,'user.id') ? '手机号' : '部分匹配的 手机号/昵称/卡号'" 
@@ -39,14 +40,16 @@
                   :item-value="i => i"
                   @change="goCheckIn"
                 ) 
-                v-btn(color="accent"  v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
+                v-btn(color="primary" :block="!searchUserForm.bookings.length" v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
           v-card.py-4.px-7(v-if="$_.get(searchUserForm, 'user.id')")
             div(v-if="!searchUserForm.user.cardNo && searchUserForm.user.credit")
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number" autocomplete="off")
               v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
             div
-              v-text-field(label="卡号" v-if="searchUserForm.user.cardNo" v-model="searchUserForm.user.cardNo" disabled autocomplete="off") 
-              v-text-field(label="余额" v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
+              .flex
+                v-text-field(label="卡号" v-if="searchUserForm.user.cardNo" v-model="searchUserForm.user.cardNo" disabled autocomplete="off") 
+                v-text-field(label="余额" v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
+              v-select(:items="searchUserForm.user.codes" clearable label="查看券码" item-text="title" :item-value="i => i.id")
               v-btn(color="primary" block @click="step = 'topup'") 充值
         //- 充值                     
         v-card.py-4.px-7(v-if="step=='topup'")
@@ -105,6 +108,7 @@
                   v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
                   v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
                 v-select(:items="coupons" clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
+                //- v-select(:items="createBookingForm.user.codes" clearable label="券码" item-text="title" :item-value="i => i.id" v-model="createBookingForm.form.code")
                 //- v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
             .flex(style="margin-top:-12px;margin-bottom:-4px")
               v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
@@ -281,11 +285,11 @@ export default {
       this.searchUserForm.bookings_loading = true;
       //TODO: store id
       let res;
-      if (config.IS_PROD) {
-        res = await findBookings({ customer: val.id, date: this.today, store: this.currentStore.id, status: "BOOKED" });
-      } else {
-        res = await findBookings({ customer: val.id });
-      }
+      // if (config.IS_PROD) {
+      res = await findBookings({ customer: val.id, date: this.today, store: this.currentStore.id, status: "BOOKED" });
+      // } else {
+      //   res = await findBookings({ customer: val.id });
+      // }
       this.searchUserForm.bookings = res.data;
       this.searchUserForm.bookings_loading = false;
     }
