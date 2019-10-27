@@ -107,10 +107,11 @@
                   v-btn.px-5(:value=2 text :disabled="createBookingForm.fixedHours") 2小时
                   v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
                   v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
-                v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" item-text="title" :item-value="i => i.id" v-model="createBookingForm.form.code")                
-                v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
-                v-switch.mt-2(v-model="createBookingForm.useCode" label="券码" hide-details)
-            .flex(style="margin-top:-12px;margin-bottom:-4px")
+                .flex.items-center
+                  v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" item-text="title" :item-value="i => i.id" v-model="createBookingForm.form.code")                
+                  v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
+                  v-switch.ml-4(v-model="createBookingForm.useCode" label="券码" hide-details)
+            .flex(style="margin-top:14px;margin-bottom:-4px")
               v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
                 v-btn.px-0(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
                   span {{item.label}}
