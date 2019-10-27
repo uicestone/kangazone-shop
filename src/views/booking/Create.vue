@@ -107,9 +107,9 @@
                   v-btn.px-5(:value=2 text :disabled="createBookingForm.fixedHours") 2小时
                   v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
                   v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
-                v-select(:items="coupons" clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
-                //- v-select(:items="createBookingForm.user.codes" clearable label="券码" item-text="title" :item-value="i => i.id" v-model="createBookingForm.form.code")
-                //- v-checkbox(v-model="createBookingForm.form.useCoupon" label="体验券" hide-details)
+                v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" item-text="title" :item-value="i => i.id" v-model="createBookingForm.form.code")                
+                v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
+                v-switch.mt-2(v-model="createBookingForm.useCode" label="券码" hide-details)
             .flex(style="margin-top:-12px;margin-bottom:-4px")
               v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
                 v-btn.px-0(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
@@ -192,13 +192,14 @@ export default {
           membersCount: 1,
           socksCount: 0,
           paymentGateway: "scan",
-          useCoupon: false
+          code: null
         },
         user: {
           mobile: "",
           credit: 0
         },
         coupon: {},
+        useCode: false,
         fixedHours: false,
         fixedMembersCount: false,
         price: 0,
@@ -249,6 +250,12 @@ export default {
     }
   },
   watch: {
+    "createBookingForm.useCode"() {
+      if (this.createBookingForm.coupon.slug) {
+        this.createBookingForm.coupon = {};
+      }
+      this.createBookingForm.form.code = null;
+    },
     "createBookingForm.form": {
       async handler(newVal, oldVal) {
         if (!oldVal) return;
@@ -298,7 +305,7 @@ export default {
     async updatePrice() {
       if (this.createBookingForm.loading_price) return;
       this.createBookingForm.loading_price = true;
-      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
+      let { type, date, checkInAt, membersCount, socksCount, hours, code } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
       const { slug } = this.createBookingForm.coupon || {};
       const { paymentGateway } = this;
@@ -309,6 +316,7 @@ export default {
           type,
           date,
           hours,
+          code,
           coupon: slug,
           customer: customerId,
           checkInAt: moment().format("HH:mm"),
@@ -404,7 +412,7 @@ export default {
     },
     async createBooking() {
       this.createBookingForm.loading_createBooking = true;
-      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
+      let { type, date, checkInAt, membersCount, socksCount, hours, code } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
       const { slug } = this.createBookingForm.coupon || {};
       const { paymentGateway } = this;
@@ -414,6 +422,7 @@ export default {
           type,
           date,
           hours,
+          code,
           coupon: slug,
           customer: customerId,
           checkInAt: moment().format("HH:mm:ss"),
