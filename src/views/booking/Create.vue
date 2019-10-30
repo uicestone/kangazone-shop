@@ -281,7 +281,7 @@ export default {
     },
     "createBookingForm.coupon"(val) {
       const { fixedHours, fixedMembersCount, hours, membersCount } = val || {};
-      this.createBookingForm.form.hours = hours || 1;
+      this.createBookingForm.form.hours = hours === undefined ? 0 : hours;
       this.createBookingForm.form.membersCount = membersCount || 1;
       this.createBookingForm.fixedHours = fixedHours || false;
       this.createBookingForm.fixedMembersCount = fixedMembersCount || false;
