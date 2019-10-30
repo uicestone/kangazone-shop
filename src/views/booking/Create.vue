@@ -49,7 +49,7 @@
               .flex
                 v-text-field(label="卡号" v-if="searchUserForm.user.cardNo" v-model="searchUserForm.user.cardNo" disabled autocomplete="off") 
                 v-text-field(label="余额" v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
-              v-select(:items="searchUserForm.user.codes" clearable label="查看券码" item-text="title" :item-value="i => i.id")
+              v-select(:items="searchUserForm.user.codes" clearable label="查看券码" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-disabled="i => i.used")
               v-btn(color="primary" block @click="step = 'topup'") 充值
         //- 充值                     
         v-card.py-4.px-7(v-if="step=='topup'")
@@ -110,7 +110,7 @@
                   v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
                   v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
                 .flex.items-center
-                  v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-value="i => i" v-model="createBookingForm.code")                
+                  v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-value="i => i" :item-disabled="i => i.used" v-model="createBookingForm.code")                
                   v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
                   v-switch.ml-4(v-model="createBookingForm.useCode" label="券码" hide-details)
             .flex(style="margin-top:14px;margin-bottom:-4px")
