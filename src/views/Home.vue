@@ -3,8 +3,10 @@
     v-app-bar.flex-none(color="secondary")
       v-app-bar-nav-icon(@click.stop="drawer = !drawer")
       v-toolbar-title 概况
-      .flex.justify-end
+      .flex.justify-end(style="opacity:0.7")
         v-btn(@click="printReceipt" color="secondary" height="28px" elevation="0") 盘点小票
+        v-btn(@click="reloadApp" height="28px" width="28px" elevation="0" icon)
+          v-icon mdi-refresh
     v-navigation-drawer(v-model="drawer" bottom absolute height="auto")
       v-list-item
         v-list-item-content
@@ -76,6 +78,9 @@ export default {
   methods: {
     async printReceipt() {
       await statsReceiptPrint();
+    },
+    reloadApp() {
+      window.location.reload();
     },
     async getStats() {
       const res = await getStats();
