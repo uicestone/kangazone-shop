@@ -19,7 +19,9 @@
               v-list-item-action {{booking.date}}
             v-list-item
               v-list-item-content 人数
-              v-list-item-action {{booking.membersCount}}
+              v-list-item-action
+                span(v-if="booking.membersCount") {{booking.membersCount}}大
+                span(v-if="booking.kidsCount") {{booking.kidsCount}}小
             v-list-item
               v-list-item-content 入场时间
               v-list-item-action {{booking.checkInAt}}
@@ -87,7 +89,7 @@
       //- 绑定的手环
       v-card.p-3.mt-5(v-if="['BOOKED', 'IN_SERVICE', 'PENDING_REFUND', 'FINISHED'].includes(booking.status)" )
         v-form(v-model="checkInForm.valid" ref="checkInForm" @submit.native.prevent )
-          v-text-field(autocomplete="off" v-for="(item, index) in booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :disabled="!['BOOKED'].includes(booking.status)" :rules="[v => !!v || '请点击后用读卡器识别手环号']")
+          v-text-field(autocomplete="off" v-for="(item, index) in booking.membersCount + booking.kidsCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]"  required :disabled="!['BOOKED'].includes(booking.status)" :rules="[v => !!v || '请点击后用读卡器识别手环号']")
           v-btn(color="primary" v-if="['BOOKED'].includes(booking.status)" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 重新绑定手环并打印小票
       //- 手动收款/退款
       v-data-table.mt-10.pt-4(
