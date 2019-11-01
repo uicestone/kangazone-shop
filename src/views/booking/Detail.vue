@@ -19,7 +19,7 @@
               v-list-item-action {{booking.date}}
             v-list-item
               v-list-item-content 人数
-              v-list-item-action
+              v-list-item-action.flex-row
                 span(v-if="booking.membersCount") {{booking.membersCount}}大
                 span(v-if="booking.kidsCount") {{booking.kidsCount}}小
             v-list-item

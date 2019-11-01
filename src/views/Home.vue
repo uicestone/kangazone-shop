@@ -27,11 +27,11 @@
       div.flex.text.justify-between.items-center.align-stretch.flex-1
         v-card(@click="goBookingList({status: 'IN_SERVICE'})" :elevation="5")
           div.number {{ stats.checkedInCount }}
-          div.label 场内人数
-            div.hint 点击查看活跃订单
+          div.label 游玩中人数
+            div.hint 点击查看游玩中订单
         v-card(@click="goBookingList({due: true})" :elevation="5")
           div.number {{ stats.dueCount }}
-          div.label 即将超时 
+          div.label 即将超时人数
             div.hint 点击查看即将超时订单
         v-card.action.primary(@click="goBookingCreate" :elevation="5")
           v-icon mdi-location-enter

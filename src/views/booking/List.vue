@@ -27,6 +27,11 @@
             span {{configs.bookingStatusMap[item.status]}}
           template(v-slot:item.type="{item}")
             span {{configs.bookingTypeMap[item.type]}}
+          template(v-slot:item.hours="{item}")
+            span {{item.hours ? item.hours : '畅玩'}}
+          template(v-slot:item.membersCount="{item}")
+            span(v-if="item.membersCount") {{ `${item.membersCount}大` }}
+            span(v-if="item.kidsCount") {{ `${item.kidsCount}小` }}
         v-pagination(v-model="page" :length="totalPages" :total-visible="5")
          
             
