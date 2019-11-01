@@ -44,8 +44,8 @@ export const getBooking = async ({ id }) => {
   return axios.request<Booking>({ url: `/booking/${id}` });
 };
 
-export const createBooking = async ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
-  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer, coupon }, _.isNil);
+export const createBooking = async ({ store, type, date, hours, checkInAt, membersCount, kidsCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
+  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, kidsCount, socksCount, code, customer, coupon }, _.isNil);
   const params = _.omitBy({ useCredit, paymentGateway }, _.isNil);
   return axios.request<Booking>({
     url: `/booking`,
@@ -55,8 +55,8 @@ export const createBooking = async ({ store, type, date, hours, checkInAt, membe
   });
 };
 
-export const getBookingPrice = async ({ store, type, date, hours, checkInAt, membersCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
-  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, socksCount, code, customer, coupon }, _.isNil);
+export const getBookingPrice = async ({ store, type, date, hours, checkInAt, membersCount, kidsCount, socksCount, code, useCredit, paymentGateway, customer, coupon }) => {
+  const data = _.omitBy({ store, type, date, hours, checkInAt, membersCount, kidsCount, socksCount, code, customer, coupon }, _.isNil);
   return axios.request<Booking>({
     url: `/booking-price`,
     params: {

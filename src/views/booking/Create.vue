@@ -58,7 +58,7 @@
               span.text-2xl ￥{{item.price}}
               br
               span.text-lg(v-if="item.rewardCredit") 送 {{item.rewardCredit}}
-              span.text-lg(v-if="item.desc") {{item.desc}}
+              span.text-lg(v-else) {{item.desc}}
           v-divider.mt-2
           .flex.mt-2.align-center
             v-bottom-navigation.flex-1.mt-2(v-model="topupForm.paymentGateway" grow icons-and-text  style="box-shadow:none")
@@ -86,33 +86,39 @@
         v-card.py-4.px-7(v-if="step == 'createBooking'")
           v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)
             .flex
-              .items-between.flex.flex-column(style="flex:2")
-                v-text-field(label="手机号" hide-details  v-model="createBookingForm.user.mobile" required disabled :rules="[v => !!v || '请输入手机号']" autocomplete="off")
-                v-text-field(label="余额" hide-details  v-model="createBookingForm.user.credit || 0"  disabled type="number" autocomplete="off")
-                v-menu(hide-details)
+              .flex.flex-column(style="width:30%")
+                v-btn-toggle.flex(mandatory style="width:100%")
+                  v-btn.px-0(text style="flex-grow:2") 手机号：{{ createBookingForm.user.mobile }}
+                  v-btn.px-0(text style="flex-grow:1") 余额：{{ createBookingForm.user.credit || 0 }}
+                v-btn-toggle.select-hours.mt-4.flex(v-model="createBookingForm.form.hours" mandatory style="width:100%")
+                  v-btn.flex-1(:value=1 text :disabled="createBookingForm.fixedHours") 1小时
+                  v-btn.flex-1(:value=2 text :disabled="createBookingForm.fixedHours") 2小时
+                  v-btn.flex-1(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
+                  v-btn.flex-1(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
+                v-menu.mt-2(hide-details)
                   template(v-slot:activator="{on}")
                     v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date" autocomplete="off" style="height:20px")
                   v-date-picker(v-model="createBookingForm.form.date")
               .pl-5.items-between.flex.flex-column(style="flex:3;width:70%")
-                v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" :disabled="createBookingForm.fixedMembersCount || !!$_.get(createBookingForm, 'code.id')"  @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
+                v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" :disabled="createBookingForm.fixedMembersCount || !!$_.get(createBookingForm, 'code.id')" @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
-                    p.w-12 人数
+                    p.w-12 成人数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
-                v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount"  @change="i => createBookingForm.form.socksCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
+                v-slider.flex.items-center(value.sync="createBookingForm.form.kidsCount" :disabled="createBookingForm.fixedMembersCount || !!$_.get(createBookingForm, 'code.id')" @change="i => createBookingForm.form.kidsCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
+                  template(v-slot:label)
+                    p.w-12 儿童数
+                  template(v-slot:append)
+                    v-text-field.mt-0.pt-0(v-model="createBookingForm.form.kidsCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
+                v-slider.flex.items-center(value.sync="createBookingForm.form.socksCount" @change="i => createBookingForm.form.socksCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 袜子数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
-                v-btn-toggle.mt-4(v-model="createBookingForm.form.hours"  mandatory)
-                  v-btn.px-5(:value=1 text :disabled="createBookingForm.fixedHours") 1小时
-                  v-btn.px-5(:value=2 text :disabled="createBookingForm.fixedHours") 2小时
-                  v-btn.px-5(:value=3 text :disabled="createBookingForm.fixedHours") 3小时
-                  v-btn.px-5(:value=0 text :disabled="createBookingForm.fixedHours") 畅玩
                 .flex.items-center
                   v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-value="i => i" :item-disabled="i => i.used" v-model="createBookingForm.code")                
                   v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
-                  v-switch.ml-4(v-model="createBookingForm.useCode" label="券码" hide-details)
+                  v-switch.ml-2(v-model="createBookingForm.useCode" label="" hide-details)
             .flex(style="margin-top:14px;margin-bottom:-4px")
               v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
                 v-btn.px-0(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
@@ -133,7 +139,7 @@
         //- 签到
         v-form(v-model="checkInForm.valid" ref="checkInForm" v-if="step == 'checkIn'" @submit.native.prevent)
           v-card.py-4.px-7
-            v-text-field(autocomplete="off" v-for="(item, index) in checkInForm.booking.membersCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]" required :rules="[v => !!v || '请点击后用读卡器识别手环号', v => v && v.length === 10 || '请确保手环编号为10位数']")
+            v-text-field(autocomplete="off" v-for="(item, index) in checkInForm.booking.membersCount + checkInForm.booking.kidsCount" :key="index" :label="`玩家${index+1}手环号`" v-model="checkInForm.bandIds[index]" required :rules="[v => !!v || '请点击后用读卡器识别手环号', v => v && v.length === 10 || '请确保手环编号为10位数']")
             v-btn(color="primary" :disabled="!checkInForm.valid" @click="handleCheckIn" :loading="checkInForm.loading") 绑定手环并打印小票
             //- v-btn.ml-2(color="warning" @click="handlePrintBookingOnly") 仅打印小票
 
@@ -193,6 +199,7 @@ export default {
           date: moment().format("YYYY-MM-DD"),
           hours: 1,
           membersCount: 1,
+          kidsCount: 0,
           socksCount: 0,
           paymentGateway: "scan"
         },
@@ -272,7 +279,7 @@ export default {
     },
     "createBookingForm.code"(val) {
       const { hours, id } = val || {};
-      this.createBookingForm.form.hours = hours || 0;
+      this.createBookingForm.form.hours = id ? hours || 0 : 1;
       this.createBookingForm.fixedHours = id ? true : false;
       if (val) {
         this.createBookingForm.form.membersCount = val.membersCount || 1;
@@ -280,8 +287,8 @@ export default {
       this.updatePrice();
     },
     "createBookingForm.coupon"(val) {
-      const { fixedHours, fixedMembersCount, hours, membersCount } = val || {};
-      this.createBookingForm.form.hours = hours === undefined ? 0 : hours;
+      const { fixedHours, fixedMembersCount, hours, membersCount, slug } = val || {};
+      this.createBookingForm.form.hours = slug ? hours || 0 : 1;
       this.createBookingForm.form.membersCount = membersCount || 1;
       this.createBookingForm.fixedHours = fixedHours || false;
       this.createBookingForm.fixedMembersCount = fixedMembersCount || false;
@@ -319,7 +326,7 @@ export default {
     async updatePrice() {
       if (this.createBookingForm.loading_price) return;
       this.createBookingForm.loading_price = true;
-      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
+      let { type, date, checkInAt, membersCount, kidsCount, socksCount, hours } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
       const { slug } = this.createBookingForm.coupon || {};
       const { id: code } = this.createBookingForm.code || {};
@@ -337,6 +344,7 @@ export default {
           customer: customerId,
           checkInAt: moment().format("HH:mm"),
           membersCount,
+          kidsCount,
           socksCount,
           useCredit: paymentGateway == "credit",
           paymentGateway
@@ -428,7 +436,7 @@ export default {
     },
     async createBooking() {
       this.createBookingForm.loading_createBooking = true;
-      let { type, date, checkInAt, membersCount, socksCount, hours } = this.createBookingForm.form;
+      let { type, date, checkInAt, membersCount, kidsCount, socksCount, hours } = this.createBookingForm.form;
       const { id: customerId } = this.createBookingForm.user;
       const { slug } = this.createBookingForm.coupon || {};
       const { id: code } = this.createBookingForm.code || {};
@@ -444,6 +452,7 @@ export default {
           customer: customerId,
           checkInAt: moment().format("HH:mm:ss"),
           membersCount,
+          kidsCount,
           socksCount,
           useCredit: true,
           paymentGateway: paymentGateway == "credit" ? null : paymentGateway
