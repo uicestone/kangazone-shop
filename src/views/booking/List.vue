@@ -23,15 +23,23 @@
           no-data-text="没有数据"
           @click:row="editBooking"
           )
+          template(v-slot:item.customer="{item}")
+            span {{item.customer.name}}
+              span(v-if="item.customer.mobile") {{ item.customer.mobile.substr(-4) }}
           template(v-slot:item.status="{item}")
             span {{configs.bookingStatusMap[item.status]}}
           template(v-slot:item.type="{item}")
             span {{configs.bookingTypeMap[item.type]}}
           template(v-slot:item.hours="{item}")
             span {{item.hours ? item.hours : '畅玩'}}
+          template(v-slot:item.coupon="{item}")
+            span(v-if="item.coupon") {{configs.coupons.find(c => c.slug===item.coupon).name}}
+            span(v-if="item.code") {{ item.code.title }}
+            span(v-if="!item.code && !item.coupon") -
           template(v-slot:item.membersCount="{item}")
             span(v-if="item.membersCount") {{ `${item.membersCount}大` }}
             span(v-if="item.kidsCount") {{ `${item.kidsCount}小` }}
+            span(v-if="item.socksCount") {{ `${item.socksCount}袜` }}
         v-pagination(v-model="page" :length="totalPages" :total-visible="5")
          
             
@@ -63,20 +71,24 @@ export default {
       showEditBooking: false,
       headers: [
         {
-          text: "手机号",
-          align: "left",
-          value: "customer.mobile"
-        },
-        {
           text: "状态",
           align: "left",
           value: "status",
           sortable: false
         },
         {
-          text: "日期",
+          text: "客户",
           align: "left",
-          value: "date"
+          value: "customer"
+        },
+        {
+          text: "人数",
+          align: "left",
+          value: "membersCount"
+        },
+        {
+          text: "入场时间",
+          value: "checkInAt"
         },
         {
           text: "小时",
@@ -84,21 +96,25 @@ export default {
           value: "hours"
         },
         {
-          text: "类型",
-          align: "left",
-          value: "type",
-          sortable: false
-        },
+          text: "优惠/券码",
+          value: "coupon"
+        }
+        // {
+        //   text: "日期",
+        //   align: "left",
+        //   value: "date"
+        // },
+        // {
+        //   text: "类型",
+        //   align: "left",
+        //   value: "type",
+        //   sortable: false
+        // }
         // {
         //   text: "袜子数",
         //   align: "left",
         //   value: "socksCount"
         // },
-        {
-          text: "人数",
-          align: "left",
-          value: "membersCount"
-        }
       ],
       items: [],
       loading: true,
@@ -112,7 +128,7 @@ export default {
   },
   mounted() {
     const { due, status, type, date } = this.$route.query;
-    console.log(this.$route.query);
+    // console.log(this.$route.query);
     this.searchForm = Object.assign({}, this.searchForm, _.omitBy({ due, status, type, date }, _.isNil));
     this.getBookings();
   },
@@ -164,6 +180,9 @@ export default {
     height auto
   >>> .v-data-table__progress > th
     padding 0
+    position relative
+    > .v-progress-linear
+      position absolute
 .v-pagination
   >>> .v-pagination__item, >>> .v-pagination__navigation
     height 24px
