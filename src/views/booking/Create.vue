@@ -49,7 +49,7 @@
               .flex
                 v-text-field(label="卡号" v-if="searchUserForm.user.cardNo" v-model="searchUserForm.user.cardNo" disabled autocomplete="off") 
                 v-text-field(label="余额" v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
-              v-select(:items="searchUserForm.user.codes" clearable label="查看券码" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-disabled="i => i.used")
+              v-select(:items="searchUserForm.user.codes" clearable :label="`${searchUserForm.user.codes.filter(c => !c.used).length}次券码可用`" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-disabled="i => i.used")
               v-btn(color="primary" block @click="step = 'topup'") 充值
         //- 充值                     
         v-card.py-4.px-7(v-if="step=='topup'")
@@ -278,8 +278,10 @@ export default {
       deep: true
     },
     "createBookingForm.code"(val) {
-      const { hours, id } = val || {};
+      const { hours, id, membersCount, kidsCount } = val || {};
       this.createBookingForm.form.hours = id ? hours || 0 : 1;
+      this.createBookingForm.form.membersCount = membersCount;
+      this.createBookingForm.form.kidsCount = kidsCount;
       this.createBookingForm.fixedHours = id ? true : false;
       if (val) {
         this.createBookingForm.form.membersCount = val.membersCount || 1;
@@ -530,7 +532,7 @@ export default {
       this.goCheckIn(this.createBookingForm.newBooking);
     },
     getDropDownText(i) {
-      return `${i.checkInAt}-${i.hours}小时-${i.membersCount}人`;
+      return `${i.checkInAt}-${i.hours ? i.hours + "小时" : "畅玩"}-${i.membersCount}人`;
     },
     handleBack() {
       if (this.step == "searchUser") {
