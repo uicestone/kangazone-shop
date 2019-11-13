@@ -18,6 +18,7 @@
                 :disabled="!!$_.get(searchUserForm,'user.id')"
                 autofocus
                 hide-no-data
+                noFilter
                 v-model="searchUserForm.user" 
                 :search-input.sync="searchUserForm.searchText"
                 :loading="searchUserForm.loading"
@@ -306,7 +307,7 @@ export default {
       if (err) {
         return (this.searchUserForm.loading = false);
       }
-
+      console.log(res.data);
       this.searchUserForm.items = res.data;
     },
     async "searchUserForm.user"(val) {
