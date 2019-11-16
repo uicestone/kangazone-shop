@@ -8,9 +8,9 @@
       v-card.px-3.py-1
         v-form
           div(class="flex md:flex-row")
-            v-select(label="类型" v-model="searchForm.type" :items="configs.bookingTypes" item-text="label" item-value="value" clearable)
-            v-select(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
-            v-text-field(label="用户手机/卡号" v-model="searchForm.customerKeyword" clearable autocomplete="off")        
+            v-select.flex-1(label="状态" v-model="searchForm.status" :items="configs.bookingStatus" item-text="label" item-value="value" clearable)
+            v-text-field.flex-1(label="手机 / 会员卡" v-model="searchForm.customerKeyword" clearable autocomplete="off")        
+            v-text-field.flex-1(label="手环" v-model="searchForm.bandId" clearable autocomplete="off")        
 
       div.pt-2
         v-data-table.p-3(
@@ -59,6 +59,7 @@ export default {
     return {
       searchForm: {
         customerKeyword: null,
+        bandId: null,
         due: null,
         date: null,
         status: null,
@@ -153,10 +154,10 @@ export default {
       const {
         limit,
         page,
-        searchForm: { status, type, customerKeyword, date, due }
+        searchForm: { status, type, customerKeyword, bandId, date, due }
       } = this;
       const skip = (page - 1) * limit;
-      const res = await findBookings({ limit, skip: skip > 0 ? skip : 0, type, status, customerKeyword, date, due });
+      const res = await findBookings({ limit, skip: skip > 0 ? skip : 0, type, status, customerKeyword, bandId, date, due });
       const end = res.headers["items-end"];
       const start = res.headers["items-start"];
       const total = res.headers["items-total"];
