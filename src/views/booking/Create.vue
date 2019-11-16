@@ -42,7 +42,7 @@
                   @change="goCheckIn"
                 ) 
                 v-btn(color="primary" :block="!searchUserForm.bookings.length" v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
-          v-card.py-4.px-7(v-if="userValid" style="flex:2")
+          v-card.py-4.px-7(v-if="$_.get(searchUserForm, 'user.id')" style="flex:2")
             div(v-if="!searchUserForm.user.cardNo && (searchUserForm.user.codes.length || searchUserForm.user.credit)")
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number" autocomplete="off")
               v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
