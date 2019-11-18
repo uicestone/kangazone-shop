@@ -12,11 +12,11 @@ export const login = async ({ username, password }: { username: string; password
     data: { login: username, password }
   });
 
-export const signup = async ({ username, gender, mobile }) =>
+export const signup = async ({ username, gender, mobile, idCardNo }) =>
   axios.request({
     method: "POST",
     url: "/user",
-    data: { name: username, gender, mobile }
+    data: { name: username, gender, mobile, idCardNo }
   });
 
 export const getAuthUser = async () =>

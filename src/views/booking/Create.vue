@@ -36,16 +36,18 @@
                   label="已预约签到" 
                   dense
                   color="primary"
-                  v-if="userValid && (searchUserForm.idCardNo || !searchUserForm.isMember)"
+                  v-if="userValid && (searchUserForm.user.idCardNo || !searchUserForm.user.cardType)"
                   :item-text="getDropDownText"
                   :item-value="i => i"
                   @change="goCheckIn"
                 ) 
-                v-btn(color="primary" :block="!searchUserForm.bookings.length" v-if="userValid" @click="createBookingFromSearchUser") 创建新预约
+                v-btn(color="primary" :block="!searchUserForm.bookings.length" v-if="userValid && (searchUserForm.user.idCardNo || !searchUserForm.user.cardType)" @click="createBookingFromSearchUser") 创建新预约
+              v-text-field(label="身份证号" v-if="userValid && !searchUserForm.user.idCardNo && searchUserForm.user.cardType" v-model="createUserForm.idCardNo" autocomplete="off") 
+              v-btn(color="primary" block v-if="userValid && !searchUserForm.user.idCardNo && searchUserForm.user.cardType" @click="updateUser") 补录身份证号
           v-card.py-4.px-7(v-if="$_.get(searchUserForm, 'user.id')" style="flex:2")
-            div(v-if="!searchUserForm.user.cardNo && (searchUserForm.user.codes.length || searchUserForm.user.credit)")
+            div.flex(v-if="!searchUserForm.user.cardNo && (searchUserForm.user.codes.length || searchUserForm.user.credit)" style="align-items:center")
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number" autocomplete="off")
-              v-btn(color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
+              v-btn(small color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
             div
               .flex
                 v-text-field(label="卡号" v-if="searchUserForm.user.cardNo" v-model="searchUserForm.user.cardNo" disabled autocomplete="off") 
@@ -75,14 +77,15 @@
                 v-btn.w-full(block color="primary"  @click="comfirmTopupPayment" :loading="topupForm.loading_confirm") 确认收款完成
         //- 创建用户
         v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'" @submit.native.prevent)
-          v-card.py-4.px-7
-            v-text-field(label="完整的手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number" autocomplete="off")
-            v-text-field(label="客人的姓名或昵称" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable autocomplete="off")
-            v-radio-group(row v-model="createUserForm.gender")
-              v-radio(label="男" value="1")
-              v-radio(label="女" value="2")
-            div
-              v-btn(color="primary" :disabled="!createUserForm.valid" @click="createUser") 保存客人
+          v-card.flex.flex-wrap.py-4.px-7
+            v-text-field(class="w-1/2" label="完整的手机号" v-model="createUserForm.mobile" required :rules="[v => !!v || '请输入手机号']" clearable type="number" autocomplete="off")
+            v-text-field(class="w-1/2" label="客人的姓名或昵称" v-model="createUserForm.username" :rules="[v => !!v || '请输入用户名']" clearable autocomplete="off")
+            v-text-field(class="w-1/2" label="身份证号*" v-model="createUserForm.idCardNo" clearable autocomplete="off")
+            v-radio-group(class="w-1/2" row v-model="createUserForm.gender")
+              v-radio(label="男" :value="1")
+              v-radio(label="女" :value="2")
+              v-radio(label="未知" :value="0")
+            v-btn(block color="primary" :disabled="!createUserForm.valid" @click="createUser") 保存客人
         //- 创建订单
         v-card.py-4.px-7(v-if="step == 'createBooking'")
           v-form(v-model="createBookingForm.valid" ref="createBookingForm"  @submit.native.prevent)
@@ -191,7 +194,7 @@ export default {
         valid: false,
         mobile: "",
         username: "",
-        gender: 1,
+        gender: 0,
         loading: false
       },
       createBookingForm: {
@@ -261,6 +264,11 @@ export default {
     }
   },
   watch: {
+    "createUserForm.idCardNo"(val) {
+      if (val.length === 18) {
+        this.createUserForm.gender = val.substr(16, 1) % 2 === 1 ? 1 : 2;
+      }
+    },
     "createBookingForm.useCode"() {
       if (this.createBookingForm.coupon.slug) {
         this.createBookingForm.coupon = {};
@@ -430,7 +438,7 @@ export default {
       this.searchUserForm.user.cardNo = res.data.cardNo;
     },
     goCreateUser() {
-      Object.assign(this.createUserForm, { mobile: "", username: "", gender: "male" });
+      Object.assign(this.createUserForm, { mobile: "", username: "", gender: 0 });
       this.step = "createUser";
     },
     async createBookingFromSearchUser() {
@@ -438,8 +446,15 @@ export default {
       this.step = "createBooking";
     },
     async createUser() {
-      const { mobile, username, gender } = this.createUserForm;
-      const res = await signup({ username, gender, mobile });
+      const { mobile, username, gender, idCardNo } = this.createUserForm;
+      const res = await signup({ username, gender, mobile, idCardNo });
+      this.searchUserForm.user = res.data;
+      this.refreshSearchUser();
+    },
+    async updateUser() {
+      const { id } = this.searchUserForm.user;
+      const { idCardNo } = this.createUserForm;
+      const res = await updateUser({ idCardNo, id });
       this.searchUserForm.user = res.data;
       this.refreshSearchUser();
     },

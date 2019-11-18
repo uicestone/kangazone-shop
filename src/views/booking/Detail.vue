@@ -373,7 +373,7 @@ export default {
       const res1 = await getUser({ id: customerId });
       this.customer = res1.data;
       this.checkInForm.bandIds = res.data.bandIds;
-      if (["IN_SERVICE"].includes(booking.status) && booking.hours) {
+      if (["IN_SERVICE"].includes(this.booking.status) && this.booking.hours) {
         this.updateExtendPrice();
       }
     },

@@ -3,8 +3,8 @@ import { _ } from "../utils/lodash";
 
 export const findUser = ({ keyword }) => axios.request({ url: "/user", params: { keyword } });
 export const getUser = ({ id }) => axios.request({ url: `/user/${id}` });
-export const updateUser = ({ id, cardNo }) => {
-  const data = _.omitBy({ cardNo }, _.isNil);
+export const updateUser = ({ id, cardNo, idCardNo }) => {
+  const data = _.omitBy({ cardNo, idCardNo }, _.isNil);
 
   return axios.request({ method: "put", url: `/user/${id}`, data });
 };
