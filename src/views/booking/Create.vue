@@ -36,7 +36,7 @@
                   label="已预约签到" 
                   dense
                   color="primary"
-                  v-if="userValid"
+                  v-if="userValid && (searchUserForm.idCardNo || !searchUserForm.isMember)"
                   :item-text="getDropDownText"
                   :item-value="i => i"
                   @change="goCheckIn"
@@ -120,8 +120,8 @@
                   v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-value="i => i" :item-disabled="i => i.used" v-model="createBookingForm.code")                
                   v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
                   v-switch.ml-2(v-model="createBookingForm.useCode" label="" hide-details)
-            .flex(style="margin-top:14px;margin-bottom:-4px")
-              v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
+            .flex(style="margin-top:14px;margin-bottom:-4px;min-height:60px")
+              v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="createBookingForm.price > 0 && paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
                 v-btn.px-0(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
                   span {{item.label}}
                   v-icon {{item.icon}}
@@ -307,7 +307,7 @@ export default {
       if (err) {
         return (this.searchUserForm.loading = false);
       }
-      console.log(res.data);
+      // console.log(res.data);
       this.searchUserForm.items = res.data;
     },
     async "searchUserForm.user"(val) {
@@ -476,7 +476,7 @@ export default {
         return;
       }
       const { payments, price, id: businessId } = res.data;
-      const [payment] = payments;
+      const [payment] = payments.filter(p => !["coupon", "code"].includes(p.gateway));
       this.createBookingForm.newBooking = res.data;
       if (!payment) {
         return this.goCheckIn(this.createBookingForm.newBooking);
