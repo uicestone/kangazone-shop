@@ -36,14 +36,19 @@
                   label="已预约签到" 
                   dense
                   color="primary"
-                  v-if="userValid && (searchUserForm.user.idCardNo || !searchUserForm.user.cardType)"
+                  v-if="userValid && (searchUserForm.user.idCardNo || !searchUserForm.user.cardType || searchUserForm.user.isForeigner)"
                   :item-text="getDropDownText"
                   :item-value="i => i"
                   @change="goCheckIn"
                 ) 
-                v-btn(color="primary" :block="!searchUserForm.bookings.length" v-if="userValid && (searchUserForm.user.idCardNo || !searchUserForm.user.cardType)" @click="createBookingFromSearchUser") 创建新预约
-              v-text-field(label="身份证号" v-if="userValid && !searchUserForm.user.idCardNo && searchUserForm.user.cardType" v-model="createUserForm.idCardNo" autocomplete="off") 
-              v-btn(color="primary" block v-if="userValid && !searchUserForm.user.idCardNo && searchUserForm.user.cardType" @click="updateUser") 补录身份证号
+                v-btn(color="primary" :block="!searchUserForm.bookings.length" v-if="userValid && (searchUserForm.user.idCardNo || !searchUserForm.user.cardType || searchUserForm.user.isForeigner)" @click="createBookingFromSearchUser") 创建新预约
+              .flex(v-if="userValid && !searchUserForm.user.idCardNo && searchUserForm.user.cardType && !searchUserForm.user.isForeigner")
+                v-text-field(label="身份证号" v-model="createUserForm.idCardNo" autocomplete="off" v-if="!createUserForm.isForeigner") 
+                v-select(label="国籍" v-model="createUserForm.country" :items="countries" v-if="createUserForm.isForeigner")
+                v-checkbox(label="外籍" v-model="createUserForm.isForeigner" style="width:85px") 
+              v-btn(color="primary" block v-if="userValid && !searchUserForm.user.idCardNo && searchUserForm.user.cardType && !searchUserForm.user.isForeigner" @click="updateUser")
+                span(v-if="!createUserForm.isForeigner") 补录身份证号
+                span(v-else) 完善国籍信息
           v-card.py-4.px-7(v-if="$_.get(searchUserForm, 'user.id')" style="flex:2")
             div.flex(v-if="!searchUserForm.user.cardNo && (searchUserForm.user.codes.length || searchUserForm.user.credit)" style="align-items:center")
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number" autocomplete="off")
@@ -235,7 +240,8 @@ export default {
           membersCount: 1
         },
         bandIds: []
-      }
+      },
+      countries: ["日本", "韩国", "澳大利亚", "美国", "加拿大", "新加坡", "泰国", "马来西亚", "印度", "英国", "德国", "法国", "意大利"]
     };
   },
   computed: {
@@ -453,8 +459,8 @@ export default {
     },
     async updateUser() {
       const { id } = this.searchUserForm.user;
-      const { idCardNo } = this.createUserForm;
-      const res = await updateUser({ idCardNo, id });
+      const { idCardNo, isForeigner, country } = this.createUserForm;
+      const res = await updateUser({ id, idCardNo, isForeigner, country });
       this.searchUserForm.user = res.data;
       this.refreshSearchUser();
     },
