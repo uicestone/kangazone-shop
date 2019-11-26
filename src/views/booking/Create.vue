@@ -62,7 +62,7 @@
         //- 充值                     
         v-card.py-4.px-7(v-if="step=='topup'")
           v-btn-toggle.deposit-levels.mt-2.flex.flex-wrap.justify-center(v-model="topupForm.depositLevel" group)
-            v-btn(v-for="item in configs.depositLevels" :key="item.price" :value="item.price" style="width:33%")
+            v-btn(v-for="item in configs.depositLevels" :key="item.slug" :value="item" style="width:33%")
               span.text-2xl ￥{{item.price}}
               br
               span.text-lg(v-if="item.rewardCredit") 送 {{item.rewardCredit}}
@@ -78,7 +78,7 @@
             v-sheet.px-10.flex.items-center(height="100px")
               .w-full
                 .mr-5.text-lg.my-0
-                  span.text-orange-600 ￥{{topupForm.depositLevel}}元
+                  span.text-orange-600 ￥{{topupForm.depositLevel.price}}元
                 v-btn.w-full(block color="primary"  @click="comfirmTopupPayment" :loading="topupForm.loading_confirm") 确认收款完成
         //- 创建用户
         v-form(v-model="createUserForm.valid" ref="createUserForm" v-if="step == 'createUser'" @submit.native.prevent)
@@ -175,7 +175,7 @@ export default {
       topupForm: {
         confirm: false,
         loading_confirm: false,
-        depositLevel: 1000,
+        depositLevel: {},
         paymentGateway: "scan",
         loading: false,
         payment: {}

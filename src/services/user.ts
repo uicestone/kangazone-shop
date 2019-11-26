@@ -10,7 +10,7 @@ export const updateUser = ({ id, cardNo, idCardNo, isForeigner, country }) => {
 };
 
 export const userDeposit = ({ id, depositLevel, paymentGateway }) => {
-  const data = _.omitBy({ depositLevel }, _.isNil);
+  const data = _.omitBy({ depositLevel: depositLevel.slug }, _.isNil);
   const params = _.omitBy({ paymentGateway }, _.isNil);
   return axios.request({ url: `/user-deposit/${id}`, method: "post", data, params });
 };
