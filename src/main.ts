@@ -10,18 +10,21 @@ import vuetify from "./plugins/vuetify";
 import Notifications from "vue-notification";
 import { jsBridageBus } from "./services/payment";
 import { _ } from "./utils/lodash";
+import { config } from "../config";
 
 Vue.prototype.$_ = _;
 
 Vue.config.productionTip = false;
 Vue.config.errorHandler = (err, vm, info) => {
   console.error(err);
-  Vue.notify({
-    group: "api",
-    type: "error",
-    text: err.message,
-    duration: 2000
-  });
+  if (!config.IS_PROD) {
+    Vue.notify({
+      group: "api",
+      type: "error",
+      text: err.message,
+      duration: 2000
+    });
+  }
 };
 
 Vue.use(Notifications);
