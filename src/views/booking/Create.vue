@@ -54,6 +54,7 @@
               v-text-field(label="绑定会员卡" v-model="searchUserForm.cardNo" required :rules="[v => !!v || '请输入卡号']" clearable type="number" autocomplete="off")
               v-btn(small color="primary" :disabled="!searchUserForm.cardNo" :loading="searchUserForm.bindCard_loading" @click="handleBindCardNo") 绑定卡号
             div
+              p(v-if="searchUserForm.user.freePlay" style="opacity:0.5;text-align:left") 本人畅玩至{{searchUserForm.user.freePlayTo.substr(0,10)}}
               .flex
                 v-text-field(label="卡号" v-if="searchUserForm.user.cardNo" v-model="searchUserForm.user.cardNo" disabled autocomplete="off") 
                 v-text-field(label="余额" v-model="searchUserForm.user.credit || 0"  disabled autocomplete="off")
