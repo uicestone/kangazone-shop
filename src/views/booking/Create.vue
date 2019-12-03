@@ -110,12 +110,12 @@
                     v-text-field(label="选择日期" hide-details v-on="on"  v-model="createBookingForm.form.date" autocomplete="off" style="height:20px")
                   v-date-picker(v-model="createBookingForm.form.date")
               .pl-5.items-between.flex.flex-column(style="flex:3;width:70%")
-                v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" :disabled="createBookingForm.fixedMembersCount || !!$_.get(createBookingForm, 'code.id')" @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
+                v-slider.flex.items-center(value.sync="createBookingForm.form.membersCount" :disabled="createBookingForm.fixedMembersCount" @change="i => createBookingForm.form.membersCount=i" max=5 min=1 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 成人数
                   template(v-slot:append)
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.membersCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
-                v-slider.flex.items-center(value.sync="createBookingForm.form.kidsCount" :disabled="createBookingForm.fixedMembersCount || !!$_.get(createBookingForm, 'code.id')" @change="i => createBookingForm.form.kidsCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
+                v-slider.flex.items-center(value.sync="createBookingForm.form.kidsCount" :disabled="createBookingForm.fixedMembersCount" @change="i => createBookingForm.form.kidsCount=i" max=5 min=0 ticks="always" tick-size="4" hide-details)
                   template(v-slot:label)
                     p.w-12 儿童数
                   template(v-slot:append)
