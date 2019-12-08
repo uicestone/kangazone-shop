@@ -55,13 +55,14 @@
 
           v-bottom-sheet.mx-2(v-if="['IN_SERVICE'].includes(booking.status) && booking.hours"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
             template(v-slot:activator="{on}")
-              v-btn(color="primary" dark v-on="on" style="height:3rem;width:6rem") 延长时间
+              v-btn(color="primary" dark v-on="on") 延长时间
             v-sheet.p-10.items-center(height="320px")
               v-form(v-model="extendForm.valid" @submit.native.prevent)
                 p.text-3xl.text-center ￥{{extendForm.price}}
                 v-btn-toggle.my-4(v-model="extendForm.form.hours")
                   v-btn.px-10(:value=1 text) 1小时
                   v-btn.px-10(:value=2 text v-if="booking.hours < 2") 2小时
+                  v-btn.px-10(:value=0 text v-if="booking.hours") 畅玩
                 v-bottom-navigation(v-model="extendForm.form.paymentGateway" grow icons-and-text style="box-shadow:none")
                   v-btn(v-for="item in extendForm.paymentGateways" :key="item.value")
                     span {{item.label}}
@@ -218,6 +219,9 @@ export default {
     },
     extendHours() {
       // console.log(this.extendForm.form.hours, this.booking.hours);
+      if (Number(this.extendForm.form.hours) === 0) {
+        return 0;
+      }
       return Number(this.extendForm.form.hours) + Number(this.booking.hours);
     }
   },
