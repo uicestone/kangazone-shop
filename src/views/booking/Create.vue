@@ -272,7 +272,7 @@ export default {
   },
   watch: {
     "createUserForm.idCardNo"(val) {
-      if (val.length === 18) {
+      if (val && val.length === 18) {
         this.createUserForm.gender = val.substr(16, 1) % 2 === 1 ? 1 : 2;
       }
     },
@@ -338,6 +338,9 @@ export default {
       // }
       this.searchUserForm.bookings = res.data;
       this.searchUserForm.bookings_loading = false;
+    },
+    "createUserForm.isForeigner"(val) {
+      this.createUserForm.idCardNo = undefined;
     }
   },
   beforeMount() {
