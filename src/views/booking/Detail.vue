@@ -55,15 +55,16 @@
 
           v-bottom-sheet.mx-2(v-if="['IN_SERVICE'].includes(booking.status) && booking.hours"  v-model="extendForm.confirm"  :persistent="extendForm.confirm_payment")
             template(v-slot:activator="{on}")
-              v-btn(color="primary" dark v-on="on") 延长时间
-            v-sheet.p-10.items-center(height="320px")
+              v-btn(color="green" dark v-on="on") 延长时间
+            v-sheet.p-10.py-3.items-center
               v-form(v-model="extendForm.valid" @submit.native.prevent)
-                p.text-3xl.text-center ￥{{extendForm.price}}
+                p.text-3xl.text-center.text-orange-600 ￥{{extendForm.price}}
+                p.mb-0 会员卡: ￥{{extendCreditPrice}} / 现场支付: ￥{{extendForm.price-extendCreditPrice}}
                 v-btn-toggle.my-4(v-model="extendForm.form.hours")
                   v-btn.px-10(:value=1 text) 1小时
                   v-btn.px-10(:value=2 text v-if="booking.hours < 2") 2小时
                   v-btn.px-10(:value=0 text v-if="booking.hours") 畅玩
-                v-bottom-navigation(v-model="extendForm.form.paymentGateway" grow icons-and-text style="box-shadow:none")
+                v-bottom-navigation(v-if="extendForm.price-extendCreditPrice>0.01" v-model="extendForm.form.paymentGateway" grow icons-and-text style="box-shadow:none")
                   v-btn(v-for="item in extendForm.paymentGateways" :key="item.value")
                     span {{item.label}}
                     v-icon {{item.icon}}
@@ -223,6 +224,11 @@ export default {
         return 0;
       }
       return Number(this.extendForm.form.hours) + Number(this.booking.hours);
+    },
+    extendCreditPrice() {
+      const price = this.extendForm.price;
+      const credit = this.customer.credit;
+      return Math.min(price, credit);
     }
   },
   mounted() {
