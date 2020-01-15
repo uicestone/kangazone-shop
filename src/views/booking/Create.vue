@@ -63,7 +63,7 @@
         //- 充值                     
         v-card.p-0(v-if="step=='topup'")
           v-btn-toggle.deposit-levels.mt-2.flex.flex-wrap.justify-center(v-model="topupForm.depositLevel" group)
-            v-btn(v-for="item in configs.depositLevels" :key="item.slug" :value="item" style="width:33.3333%;border:none")
+            v-btn(v-for="item in configs.depositLevels" v-if="item.open===undefined||item.open" :key="item.slug" :value="item" style="width:33.3333%;border:none")
               span.text-2xl ￥{{item.price}}
               br
               span.text-lg(v-if="item.rewardCredit") 送 {{item.rewardCredit}}
