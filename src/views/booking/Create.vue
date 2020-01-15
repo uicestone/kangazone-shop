@@ -61,16 +61,16 @@
               v-select(:items="searchUserForm.user.codes" clearable :label="`${searchUserForm.user.codes.filter(c => !c.used).length}次券码可用`" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-disabled="i => i.used")
               v-btn(color="primary" block @click="step = 'topup'") 充值
         //- 充值                     
-        v-card.py-4.px-7(v-if="step=='topup'")
+        v-card.p-0(v-if="step=='topup'")
           v-btn-toggle.deposit-levels.mt-2.flex.flex-wrap.justify-center(v-model="topupForm.depositLevel" group)
-            v-btn(v-for="item in configs.depositLevels" :key="item.slug" :value="item" style="width:33%")
+            v-btn(v-for="item in configs.depositLevels" :key="item.slug" :value="item" style="width:33.3333%;border:none")
               span.text-2xl ￥{{item.price}}
               br
               span.text-lg(v-if="item.rewardCredit") 送 {{item.rewardCredit}}
-              span.text-lg(v-else) {{item.desc}}
-          v-divider.mt-2
-          .flex.mt-2.align-center
-            v-bottom-navigation.flex-1.mt-2(v-model="topupForm.paymentGateway" grow icons-and-text  style="box-shadow:none")
+              span(v-else) {{item.desc}}
+          v-divider
+          .flex.mt-1.mb-1.align-center
+            v-bottom-navigation.flex-1.mt-1.mb-2.mr-3(v-model="topupForm.paymentGateway" grow icons-and-text  style="box-shadow:none")
               v-btn(v-for="item in createBookingForm.paymentGateways" :key="item.value" :value="item.value")
                 span {{item.label}}
                 v-icon {{item.icon}}
