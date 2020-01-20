@@ -127,7 +127,7 @@
                     v-text-field.mt-0.pt-0(v-model="createBookingForm.form.socksCount" hide-details single-line type="number" style="width: 60px" autocomplete="off")
                 .flex.items-center
                   v-select(v-if="createBookingForm.useCode" :items="createBookingForm.user.codes" clearable hide-details label="券码" :item-text="i => `${i.title} ID: ${$_.get(i,'id','').substr(-6).toUpperCase()}`" :item-value="i => i" :item-disabled="i => i.used" v-model="createBookingForm.code")                
-                  v-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
+                  v-select.coupon-select(v-else :items="coupons" hide-details clearable label="优惠" item-text="name" :item-value="i => i" v-model="createBookingForm.coupon")
                   v-switch.ml-2(v-model="createBookingForm.useCode" label="" hide-details)
             .flex(style="margin-top:14px;margin-bottom:-4px;min-height:60px")
               v-bottom-navigation.mr-2.mt-1(v-model="createBookingForm.form.paymentGateway" grow icons-and-text v-if="createBookingForm.price > 0 && paymentGateway !== 'credit'" style="box-shadow:none;flex:1")
@@ -305,9 +305,10 @@ export default {
       this.updatePrice();
     },
     "createBookingForm.coupon"(val) {
-      const { fixedHours, fixedMembersCount, hours, membersCount, slug } = val || {};
+      const { fixedHours, fixedMembersCount, hours, membersCount = 1, kidsCount = 0, slug } = val || {};
       this.createBookingForm.form.hours = slug ? hours || 0 : 1;
-      this.createBookingForm.form.membersCount = membersCount || 1;
+      this.createBookingForm.form.membersCount = membersCount;
+      this.createBookingForm.form.kidsCount = kidsCount;
       this.createBookingForm.fixedHours = fixedHours || false;
       this.createBookingForm.fixedMembersCount = fixedMembersCount || false;
       this.updatePrice();
@@ -589,5 +590,8 @@ export default {
 }
 * >>> .deposit-levels.v-btn-toggle > .v-btn.v-size--default {
   height: 70px !important;
+}
+* >>> .coupon-select .v-input__slot {
+  max-width: 225px;
 }
 </style>
