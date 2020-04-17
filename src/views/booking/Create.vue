@@ -63,11 +63,11 @@
         //- 充值                     
         v-card.p-0(v-if="step=='topup'")
           v-btn-toggle.deposit-levels.mt-2.flex.flex-wrap.justify-center(v-model="topupForm.depositLevel" group)
-            v-btn(v-for="item in configs.depositLevels" v-if="item.open===undefined||item.open" :key="item.slug" :value="item" style="width:33.3333%;border:none")
+            v-btn(v-for="item in configs.depositLevels" v-if="item.open===undefined||item.open" :key="item.slug" :value="item" style="width:50%;border:none")
               span.text-2xl ￥{{item.price}}
               br
               span.text-lg(v-if="item.rewardCredit") 送 {{item.rewardCredit}}
-              span(v-else) {{item.desc}}
+              span(v-else style="white-space:normal") {{item.desc}}
           v-divider
           .flex.mt-1.mb-1.align-center
             v-bottom-navigation.flex-1.mt-1.mb-2.mr-3(v-model="topupForm.paymentGateway" grow icons-and-text  style="box-shadow:none")
@@ -590,6 +590,9 @@ export default {
 }
 * >>> .deposit-levels.v-btn-toggle > .v-btn.v-size--default {
   height: 70px !important;
+}
+* >>> .v-btn__content {
+  max-width: 100%;
 }
 * >>> .coupon-select .v-input__slot {
   max-width: 225px;

@@ -42,8 +42,9 @@
           div.label 当日人数
             div.hint 点击查看当日订单
         v-card(:elevation="5")
-          div.number ￥{{ stats.paidAmount.toFixed(0) }}
+          div.number ￥{{ (stats.paidAmount+stats.depositAmount).toFixed(0) }}
           div.label 当日流水 
+            div.hint 包含消费和充值
         v-card.action.primary.disabled(@click="goCheckout" :elevation="5")
           v-icon mdi-location-exit
           v-card-actions 出场登记
