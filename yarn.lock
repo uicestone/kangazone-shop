@@ -797,13 +797,6 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/iconv@^2.1.16":
-  version "2.1.16"
-  resolved "https://registry.yarnpkg.com/@types/iconv/-/iconv-2.1.16.tgz#2b266c2e4c5425981e8ee1479bcb673b285ec88d"
-  integrity sha512-/O0bXwCim+hku9l6fjzG4lHj/wqRMJy0lpq4dd9/DeN8b9nDzaqzCb0mo7WoRm/CvJk1DTJ9F266UHqwvOzf1g==
-  dependencies:
-    "@types/node" "*"
-
 "@types/lodash@^4.14.138":
   version "4.14.139"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.139.tgz#b7b8a00d014a7debb29dc2dae4f91d3d3c6d5ab3"
@@ -3887,9 +3880,9 @@ hex-color-regex@^1.1.0:
   integrity sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
 
 highlight.js@^9.6.0:
-  version "9.15.10"
-  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.15.10.tgz#7b18ed75c90348c045eef9ed08ca1319a2219ad2"
-  integrity sha512-RoV7OkQm0T3os3Dd2VHLNMoaoDVx77Wygln3n9l5YV172XonWG6rgQD3XnF/BuFFZw9A0TJgmMSO8FEWQgvcXw==
+  version "9.18.5"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.18.5.tgz#d18a359867f378c138d6819edfc2a8acd5f29825"
+  integrity sha512-a5bFyofd/BHCX52/8i8uJkjr9DYwXIPnM/plwI6W7ezItLGqzt7X2G2nXuYSfsIJdkwwj/g9DG1LkcGJI/dDoA==
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
