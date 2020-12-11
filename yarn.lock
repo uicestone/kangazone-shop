@@ -797,13 +797,6 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/iconv@^2.1.16":
-  version "2.1.16"
-  resolved "https://registry.yarnpkg.com/@types/iconv/-/iconv-2.1.16.tgz#2b266c2e4c5425981e8ee1479bcb673b285ec88d"
-  integrity sha512-/O0bXwCim+hku9l6fjzG4lHj/wqRMJy0lpq4dd9/DeN8b9nDzaqzCb0mo7WoRm/CvJk1DTJ9F266UHqwvOzf1g==
-  dependencies:
-    "@types/node" "*"
-
 "@types/lodash@^4.14.138":
   version "4.14.139"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.139.tgz#b7b8a00d014a7debb29dc2dae4f91d3d3c6d5ab3"
@@ -4173,9 +4166,9 @@ inherits@2.0.3:
   integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
 ini@~1.3.0:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
-  integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.7.tgz#a09363e1911972ea16d7a8851005d84cf09a9a84"
+  integrity sha512-iKpRpXP+CrP2jyrxvg1kMUpXDyRUFDWurxbnVT1vQPx+Wz9uCYsMIqYuSBLV+PAaZG/d7kRLKRFc9oDMsH+mFQ==
 
 internal-ip@^4.3.0:
   version "4.3.0"
