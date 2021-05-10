@@ -797,13 +797,6 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/iconv@^2.1.16":
-  version "2.1.16"
-  resolved "https://registry.yarnpkg.com/@types/iconv/-/iconv-2.1.16.tgz#2b266c2e4c5425981e8ee1479bcb673b285ec88d"
-  integrity sha512-/O0bXwCim+hku9l6fjzG4lHj/wqRMJy0lpq4dd9/DeN8b9nDzaqzCb0mo7WoRm/CvJk1DTJ9F266UHqwvOzf1g==
-  dependencies:
-    "@types/node" "*"
-
 "@types/lodash@^4.14.138":
   version "4.14.139"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.139.tgz#b7b8a00d014a7debb29dc2dae4f91d3d3c6d5ab3"
@@ -4808,10 +4801,10 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.3, lodash@^4.17.4:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.15, lodash@^4.17.21, lodash@^4.17.3, lodash@^4.17.4:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 log-symbols@^2.2.0:
   version "2.2.0"
