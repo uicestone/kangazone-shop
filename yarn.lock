@@ -797,13 +797,6 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/iconv@^2.1.16":
-  version "2.1.16"
-  resolved "https://registry.yarnpkg.com/@types/iconv/-/iconv-2.1.16.tgz#2b266c2e4c5425981e8ee1479bcb673b285ec88d"
-  integrity sha512-/O0bXwCim+hku9l6fjzG4lHj/wqRMJy0lpq4dd9/DeN8b9nDzaqzCb0mo7WoRm/CvJk1DTJ9F266UHqwvOzf1g==
-  dependencies:
-    "@types/node" "*"
-
 "@types/lodash@^4.14.138":
   version "4.14.139"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.139.tgz#b7b8a00d014a7debb29dc2dae4f91d3d3c6d5ab3"
@@ -3906,9 +3899,9 @@ hoopy@^0.1.4:
   integrity sha512-HRcs+2mr52W0K+x8RzcLzuPPmVIKMSv97RGHy0Ea9y/mpcaK+xTrjICA04KAHi4GRzxliNqNJEFYWHghy3rSfQ==
 
 hosted-git-info@^2.1.4:
-  version "2.8.4"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.4.tgz#44119abaf4bc64692a16ace34700fed9c03e2546"
-  integrity sha512-pzXIvANXEFrc5oFFXRMkbLPQ2rXRoDERwDLyrcUxGhaZhgP54BBSl9Oheh7Vv0T090cszWBxPjkQQ5Sq1PbBRQ==
+  version "2.8.9"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
+  integrity sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==
 
 hpack.js@^2.1.6:
   version "2.1.6"
